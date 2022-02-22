@@ -1,3 +1,5 @@
+github.com/boltdb/bolt v1.3.1 h1:JQmyP4ZBrce+ZQu0dY660FMfatumYDLun9hBCUVIkF4=
+github.com/boltdb/bolt v1.3.1/go.mod h1:clJnj/oiGkjum5o1McbSZDSLxVThjynRyGBgiAx27Ps=
 github.com/nilBora/bolt v1.3.1 h1:WXdU6Vy/f0TxNMkdcDfT3UgSXUs5c+KDqkMhZx+82M0=
 github.com/nilBora/bolt v1.3.1/go.mod h1:AnCjdeNBc12uG+0ePzgtMDDhMczrJSyuANxj26i4ccY=
 golang.org/x/sys v0.0.0-20220209214540-3681064d5158 h1:rm+CHSpPEEW2IsXUib1ThaHIjuBVZjxNgSKmBLFfD4c=

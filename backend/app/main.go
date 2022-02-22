@@ -4,15 +4,19 @@ import (
  // "log"
  // "time"
   //"github.com/nilBora/bolt"
-  bolt "store/bolt"
+  //"store/store"
+  jbolt "manager-secrets/backend/app/store"
+  secret "manager-secrets/backend/app/store"
 )
 const b = "test/secret"
 
 func main() {
-  db := bolt.Open("my.db")
+  db := jbolt.Open("my.db")
   defer db.Close()
 
   bolt.Set(db, b, "secondSecret", "888")
-  v := bolt.Get(db, b, "secondSecret")
+  v := jbolt.Get(db, b, "secondSecret")
   fmt.Printf("Secret: %s\n", v)
+
+  secret.Init();
 }
