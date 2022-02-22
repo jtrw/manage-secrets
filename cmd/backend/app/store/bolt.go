@@ -1,22 +1,23 @@
-package main
+package store
+
 import (
-  "fmt"
+ // "fmt"
   "log"
   "time"
   "github.com/nilBora/bolt"
 )
 const b = "MyBucket"
 
-func main() {
-  db := open("my.db")
-  defer db.Close()
+// func main() {
+//   db := open("my.db")
+//   defer db.Close()
+//
+//   set(db, b, "love", "golang")
+//   v := get(db, b, "love")
+//   fmt.Printf("I love %s\n", v)
+// }
 
-  set(db, b, "love", "golang")
-  v := get(db, b, "love")
-  fmt.Printf("I love %s\n", v)
-}
-
-func open(file string) *bolt.DB {
+func Open(file string) *bolt.DB {
   db, err := bolt.Open(file, 0600, &bolt.Options{Timeout: 1 * time.Second})
   if err != nil {
     //handle error
@@ -25,7 +26,7 @@ func open(file string) *bolt.DB {
   return db
 }
 
-func set(db *bolt.DB, bucket, key, value string) {
+func Set(db *bolt.DB, bucket, key, value string) {
   db.Update(func(tx *bolt.Tx) error {
     b, _ := tx.CreateBucketIfNotExists([]byte(bucket))
     err := b.Put([]byte(key), []byte(value))
@@ -33,7 +34,7 @@ func set(db *bolt.DB, bucket, key, value string) {
   })
 }
 
-func get(db *bolt.DB, bucket, key string) string {
+func Get(db *bolt.DB, bucket, key string) string {
   s := ""
   db.View(func(tx *bolt.Tx) error {
     b := tx.Bucket([]byte(bucket))
@@ -43,7 +44,7 @@ func get(db *bolt.DB, bucket, key string) string {
   return s
 }
 
-func del(db *bolt.DB, bucket, key string) {
+func Del(db *bolt.DB, bucket, key string) {
   db.Update(func(tx *bolt.Tx) error {
     b := tx.Bucket([]byte(bucket))
     b.Delete([]byte(key))
