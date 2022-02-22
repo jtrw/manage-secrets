@@ -6,16 +6,6 @@ import (
   "time"
   "github.com/nilBora/bolt"
 )
-const b = "MyBucket"
-
-// func main() {
-//   db := open("my.db")
-//   defer db.Close()
-//
-//   set(db, b, "love", "golang")
-//   v := get(db, b, "love")
-//   fmt.Printf("I love %s\n", v)
-// }
 
 func Open(file string) *bolt.DB {
   db, err := bolt.Open(file, 0600, &bolt.Options{Timeout: 1 * time.Second})

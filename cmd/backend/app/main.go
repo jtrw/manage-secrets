@@ -6,13 +6,13 @@ import (
   //"github.com/nilBora/bolt"
   bolt "store/bolt"
 )
-const b = "MyBucket"
+const b = "test/secret"
 
 func main() {
   db := bolt.Open("my.db")
   defer db.Close()
 
-  bolt.Set(db, b, "love", "golang")
-  v := bolt.Get(db, b, "love")
-  fmt.Printf("I love %s\n", v)
+  bolt.Set(db, b, "secondSecret", "888")
+  v := bolt.Get(db, b, "secondSecret")
+  fmt.Printf("Secret: %s\n", v)
 }
