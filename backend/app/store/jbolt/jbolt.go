@@ -7,13 +7,21 @@ import (
   "github.com/nilBora/bolt"
 )
 
-func Open(file string) *bolt.DB {
+type Bolt struct {
+	DB *bolt.DB
+}
+
+func Open(file string) *Bolt {
   db, err := bolt.Open(file, 0600, &bolt.Options{Timeout: 1 * time.Second})
   if err != nil {
     //handle error
     log.Fatal(err)
   }
-  return db
+  var boltDB *Bolt
+  boltDB = new(Bolt)
+  boltDB.DB = db
+
+  return boltDB
 }
 
 func Set(db *bolt.DB, bucket, key, value string) {
