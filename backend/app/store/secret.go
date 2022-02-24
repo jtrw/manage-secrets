@@ -2,21 +2,22 @@ package store
 
 import (
   //"fmt"
-  "github.com/nilBora/bolt"
   jbolt "manager-secrets/backend/app/store/jbolt"
 )
 
-var db *bolt.DB;
+var BoltDB *jbolt.Bolt
+
 
 func Init() {
-  db = jbolt.Open("my.db")
+  //var boltDB jbolt.Bolt
+  BoltDB = jbolt.Open("my.db")
   //defer db.Close()
 }
 
 func Get(bucket, key string) string {
-    return jbolt.Get(db, bucket, key)
+    return jbolt.Get(BoltDB.DB, bucket, key)
 }
 
 func Set(bucket, key, value string) {
-    jbolt.Set(db, bucket, key, value)
+    jbolt.Set(BoltDB.DB, bucket, key, value)
 }
