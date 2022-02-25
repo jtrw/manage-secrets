@@ -4,9 +4,11 @@ import (
   "log"
   "os"
    "reflect"
+  //
  // "time"
   //"flag"
   secret "manager-secrets/backend/app/store"
+  server "manager-secrets/backend/app/server"
   "github.com/jessevdk/go-flags"
 )
 const b = "test/secret"
@@ -22,6 +24,11 @@ type Commands struct {
 }
 
 func main() {
+    commandName := os.Args[1]
+    if commandName == "run" {
+        server.Run();
+    }
+
     t := reflect.TypeOf(Commands{})
     f, _ := t.FieldByName("Run")
     fmt.Println(f.Tag) // one:"1" two:"2"blank:""
@@ -29,10 +36,7 @@ func main() {
     fmt.Printf("%s\n", val) // 1, true
 
 
-    commandName := os.Args[1]
-    if commandName == "run" {
-        fmt.Println(commandName)
-    }
+
 
     var opts Options
     parser := flags.NewParser(&opts, flags.Default)
