@@ -3,6 +3,7 @@ import (
   "fmt"
   "log"
   "os"
+   "reflect"
  // "time"
   //"flag"
   secret "manager-secrets/backend/app/store"
@@ -15,11 +16,23 @@ type Options struct {
    Verbose string `short:"v" long:"verbose" description:"Show verbose debug information"`
 }
 
+type Commands struct {
+   Run string `name:"run" description:"Start server"`
+   Kv string `name:"kv" description:"Key value storage"`
+}
+
 func main() {
+    t := reflect.TypeOf(Commands{})
+    f, _ := t.FieldByName("Run")
+    fmt.Println(f.Tag) // one:"1" two:"2"blank:""
+    val, _ := f.Tag.Lookup("name")
+    fmt.Printf("%s\n", val) // 1, true
 
-    myProgramName := os.Args[1]
 
-    fmt.Println(myProgramName)
+    commandName := os.Args[1]
+    if commandName == "run" {
+        fmt.Println(commandName)
+    }
 
     var opts Options
     parser := flags.NewParser(&opts, flags.Default)
