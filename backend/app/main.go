@@ -26,7 +26,16 @@ type Commands struct {
 func main() {
     commandName := os.Args[1]
     if commandName == "run" {
-        server.Run();
+        srv := server.Server{
+            PinSize:        1,
+            WebRoot:        "/",
+            Version:        "1.0",
+        }
+        if err := srv.Run(); err != nil {
+            log.Printf("[ERROR] failed, %+v", err)
+        }
+
+        //server.Run();
     }
 
     t := reflect.TypeOf(Commands{})
@@ -34,8 +43,6 @@ func main() {
     fmt.Println(f.Tag) // one:"1" two:"2"blank:""
     val, _ := f.Tag.Lookup("name")
     fmt.Printf("%s\n", val) // 1, true
-
-
 
 
     var opts Options
@@ -48,7 +55,7 @@ func main() {
     fmt.Println("Verbose: ", opts.Verbose)
 
     secret.Init();
-    secret.Set(b, "secondSecret", "888")
+    //secret.Set(b, "secondSecret", "888")
     v := secret.Get(b, "secondSecret")
     fmt.Printf("Secret: %s\n", v)
 }
