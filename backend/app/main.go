@@ -26,7 +26,7 @@ type Commands struct {
 func main() {
     commandName := os.Args[1]
     if commandName == "run" {
-        srv := server.Server{
+        srv := server.Server {
             PinSize:        1,
             WebRoot:        "/",
             Version:        "1.0",
@@ -54,9 +54,17 @@ func main() {
     fmt.Println("Name", opts.Name)
     fmt.Println("Verbose: ", opts.Verbose)
 
-    secret.Init();
-    //secret.Set(b, "secondSecret", "888")
-    v := secret.Get(b, "secondSecret")
+    sec := secret.Store {
+        StorePath: "my.db",
+    }
+
+    sec.DB = sec.NewStore();
+    v := sec.Get(b, "secondSecret")
+    //v := secret.Get(b, "secondSecret")
     fmt.Printf("Secret: %s\n", v)
+
+    //secret.Init();
+    //secret.Set(b, "secondSecret", "888")
+
 }
 

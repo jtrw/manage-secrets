@@ -5,19 +5,32 @@ import (
   jbolt "manager-secrets/backend/app/store/jbolt"
 )
 
-var BoltDB *jbolt.Bolt
+//var BoltDB *jbolt.Bolt
 
-
-func Init() {
-  //var boltDB jbolt.Bolt
-  BoltDB = jbolt.Open("my.db")
-  //defer db.Close()
+type Store struct {
+	StorePath string
+	DB jbolt.Bolt
 }
 
-func Get(bucket, key string) string {
-    return jbolt.Get(BoltDB.DB, bucket, key)
+
+func (s Store) NewStore() jbolt.Bolt {
+    bolt := jbolt.Open(s.StorePath)
+
+    return *bolt
 }
 
-func Set(bucket, key, value string) {
-    jbolt.Set(BoltDB.DB, bucket, key, value)
+func (s Store) Get(bucket, key string) string {
+    return jbolt.Get(s.DB.DB, bucket, key)
 }
+
+// func Init() {
+//   //var boltDB jbolt.Bolt
+//   BoltDB = jbolt.Open("my.db")
+//   //defer db.Close()
+// }
+//
+
+//
+// func Set(bucket, key, value string) {
+//     jbolt.Set(BoltDB.DB, bucket, key, value)
+// }
