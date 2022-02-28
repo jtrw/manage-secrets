@@ -9,9 +9,8 @@ import (
 
 type Store struct {
 	StorePath string
-	DB jbolt.Bolt
+	JBolt jbolt.Bolt
 }
-
 
 func (s Store) NewStore() jbolt.Bolt {
     bolt := jbolt.Open(s.StorePath)
@@ -20,17 +19,9 @@ func (s Store) NewStore() jbolt.Bolt {
 }
 
 func (s Store) Get(bucket, key string) string {
-    return jbolt.Get(s.DB.DB, bucket, key)
+    return jbolt.Get(s.JBolt.DB, bucket, key)
 }
 
-// func Init() {
-//   //var boltDB jbolt.Bolt
-//   BoltDB = jbolt.Open("my.db")
-//   //defer db.Close()
-// }
-//
-
-//
-// func Set(bucket, key, value string) {
-//     jbolt.Set(BoltDB.DB, bucket, key, value)
-// }
+func (s Store) Set(bucket, key, value string) {
+    jbolt.Set(s.JBolt.DB, bucket, key, value)
+}

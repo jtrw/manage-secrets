@@ -38,6 +38,28 @@ func main() {
         //server.Run();
     }
 
+    if commandName == "kv" {
+        sec := secret.Store {
+            StorePath: "my.db",
+        }
+
+        sec.JBolt = sec.NewStore();
+        command := os.Args[2]
+
+        if command == "get" {
+            keyStore := os.Args[3]
+            v := sec.Get(b, keyStore)
+            fmt.Printf("Secret: %s\n", v)
+        }
+
+        if command == "set" {
+            keyStore := os.Args[3]
+            valueStore := os.Args[4]
+            sec.Set(b, keyStore, valueStore)
+            fmt.Printf("Done:\n")
+        }
+    }
+
     t := reflect.TypeOf(Commands{})
     f, _ := t.FieldByName("Run")
     fmt.Println(f.Tag) // one:"1" two:"2"blank:""
@@ -54,14 +76,7 @@ func main() {
     fmt.Println("Name", opts.Name)
     fmt.Println("Verbose: ", opts.Verbose)
 
-    sec := secret.Store {
-        StorePath: "my.db",
-    }
 
-    sec.DB = sec.NewStore();
-    v := sec.Get(b, "secondSecret")
-    //v := secret.Get(b, "secondSecret")
-    fmt.Printf("Secret: %s\n", v)
 
     //secret.Init();
     //secret.Set(b, "secondSecret", "888")
