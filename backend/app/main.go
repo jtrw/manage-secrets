@@ -24,26 +24,28 @@ type Commands struct {
 }
 
 func main() {
+
+    sec := secret.Store {
+        StorePath: "my.db",
+    }
+
+    sec.JBolt = sec.NewStore();
+
     commandName := os.Args[1]
     if commandName == "run" {
         srv := server.Server {
-            PinSize:        1,
-            WebRoot:        "/",
-            Version:        "1.0",
+            DataStore: sec,
+            PinSize:   1,
+            WebRoot:   "/",
+            Version:   "1.0",
         }
         if err := srv.Run(); err != nil {
             log.Printf("[ERROR] failed, %+v", err)
         }
-
-        //server.Run();
     }
 
     if commandName == "kv" {
-        sec := secret.Store {
-            StorePath: "my.db",
-        }
 
-        sec.JBolt = sec.NewStore();
         command := os.Args[2]
 
         if command == "get" {
@@ -56,7 +58,7 @@ func main() {
             keyStore := os.Args[3]
             valueStore := os.Args[4]
             sec.Set(b, keyStore, valueStore)
-            fmt.Printf("Done:\n")
+            fmt.Printf("Done!\n")
         }
     }
 

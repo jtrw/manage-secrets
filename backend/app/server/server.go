@@ -14,9 +14,12 @@ import (
  "github.com/didip/tollbooth_chi"
  "github.com/go-chi/chi/v5"
  "github.com/go-chi/chi/v5/middleware"
+
+ secret "manager-secrets/backend/app/store"
 )
 
 type Server struct {
+    DataStore      secret.Store
 	PinSize        int
 	MaxPinAttempts int
 	WebRoot        string
@@ -38,8 +41,14 @@ func (s Server) routes() chi.Router {
 
 	router.Use(middleware.RequestID, middleware.RealIP, um.Recoverer(log.Default()))
 	router.Use(middleware.Throttle(1000), middleware.Timeout(60*time.Second))
-	router.Use(um.AppInfo("secrets", "Umputun", s.Version), um.Ping, um.SizeLimit(64*1024))
+	router.Use(um.AppInfo("secrets", "jtrw", s.Version), um.Ping, um.SizeLimit(64*1024))
 	router.Use(tollbooth_chi.LimitHandler(tollbooth.NewLimiter(10, nil)))
+
+    router.Get("/hello", func(w http.ResponseWriter, r *http.Request) {
+          fmt.Fprintf(w, "Hello!!!")
+          fmt.Fprintf(w, s.DataStore.Get("test/secret", "one"))
+           //fmt.Fprintf(w, "Secret:". s.DataStore.Get("test/secret", "one"))
+    })
 
 // 	router.Route("/api/v1", func(r chi.Router) {
 // 		r.Use(Logger(log.Default()))
