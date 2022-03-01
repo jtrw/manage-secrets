@@ -33,6 +33,7 @@ func (s Server) Run() error {
 		//return errors.Wrap(err, "server failed")
 		return errors.Wrap(err, "server failed")
 	}
+
 	return nil
 }
 
@@ -45,7 +46,8 @@ func (s Server) routes() chi.Router {
 	router.Use(tollbooth_chi.LimitHandler(tollbooth.NewLimiter(10, nil)))
 
     router.Get("/hello", func(w http.ResponseWriter, r *http.Request) {
-          fmt.Fprintf(w, "Hello!!!")
+          //fmt.Fprintf(w, s.DataStore.StorePath)
+        //  fmt.Fprintf(w, "\n")
           fmt.Fprintf(w, s.DataStore.Get("test/secret", "one"))
            //fmt.Fprintf(w, "Secret:". s.DataStore.Get("test/secret", "one"))
     })
