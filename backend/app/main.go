@@ -5,7 +5,7 @@ import (
   "os"
    "reflect"
   //
- // "time"
+  //"time"
   //"flag"
   secret "manager-secrets/backend/app/store"
   server "manager-secrets/backend/app/server"
@@ -24,7 +24,6 @@ type Commands struct {
 }
 
 func main() {
-
     sec := secret.Store {
         StorePath: "my.db",
     }
@@ -39,15 +38,17 @@ func main() {
             WebRoot:   "/",
             Version:   "1.0",
         }
-        if err := srv.Run(); err != nil {
-            log.Printf("[ERROR] failed, %+v", err)
-        }
+
+        //go func () {
+            if err := srv.Run(); err != nil {
+                log.Printf("[ERROR] failed, %+v", err)
+            }
+        //}()
+        //time.Sleep(100)
     }
 
     if commandName == "kv" {
-
         command := os.Args[2]
-
         if command == "get" {
             keyStore := os.Args[3]
             v := sec.Get(b, keyStore)
