@@ -3,6 +3,7 @@ import (
   "fmt"
   "log"
   "os"
+  //"os/signal"
    "reflect"
   //
   //"time"
@@ -10,6 +11,8 @@ import (
   secret "manager-secrets/backend/app/store"
   server "manager-secrets/backend/app/server"
   "github.com/jessevdk/go-flags"
+  //"context"
+  //"time"
 )
 const b = "test/secret"
 
@@ -44,6 +47,15 @@ func main() {
                 log.Printf("[ERROR] failed, %+v", err)
             }
         //}()
+
+//         c := make(chan os.Signal, 1)
+//         signal.Notify(c, os.Interrupt)
+//         <-c
+//
+//         // Attempt a graceful shutdown
+//         _, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+//         defer cancel()
+        //srv.Shutdown(ctx)
         //time.Sleep(100)
     }
 
