@@ -1,6 +1,11 @@
 # Manager secrets
 
 ## Use
+`go run backend/app/main.go run` - Run web server
+`go run backend/app/main.go kv set fkey value` - Set Value
+`go run backend/app/main.go kv get fkey` - Get Value
+
+## Use
 1. boltdb
 
 ### Dev
