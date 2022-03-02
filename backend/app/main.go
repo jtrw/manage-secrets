@@ -11,6 +11,8 @@ import (
   secret "manager-secrets/backend/app/store"
   server "manager-secrets/backend/app/server"
   "github.com/jessevdk/go-flags"
+   "net/http"
+   "io/ioutil"
   //"context"
   //"time"
 )
@@ -27,14 +29,16 @@ type Commands struct {
 }
 
 func main() {
-    sec := secret.Store {
-        StorePath: "my.db",
-    }
 
-    sec.JBolt = sec.NewStore();
 
     commandName := os.Args[1]
     if commandName == "run" {
+         sec := secret.Store {
+             StorePath: "my.db",
+         }
+
+         sec.JBolt = sec.NewStore();
+
         srv := server.Server {
             DataStore: sec,
             PinSize:   1,
@@ -63,16 +67,29 @@ func main() {
         command := os.Args[2]
         if command == "get" {
             keyStore := os.Args[3]
-            v := sec.Get(b, keyStore)
-            fmt.Printf("Secret: %s\n", v)
+
+            resp, err := http.Get("http://127.0.0.1:8080/"+keyStore)
+            if err != nil {
+               log.Fatalln(err)
+            }
+
+             body, err := ioutil.ReadAll(resp.Body)
+             if err != nil {
+               log.Fatalln(err)
+            }
+
+//             v := sec.Get(b, keyStore)
+//
+//             fmt.Printf("Secret: %s\n", v)
+            fmt.Printf("Secret: %s\n", body)
         }
 
-        if command == "set" {
-            keyStore := os.Args[3]
-            valueStore := os.Args[4]
-            sec.Set(b, keyStore, valueStore)
-            fmt.Printf("Done!\n")
-        }
+//         if command == "set" {
+//             keyStore := os.Args[3]
+//             valueStore := os.Args[4]
+//             sec.Set(b, keyStore, valueStore)
+//             fmt.Printf("Done!\n")
+//         }
     }
 
     t := reflect.TypeOf(Commands{})
