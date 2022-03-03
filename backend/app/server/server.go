@@ -5,6 +5,7 @@ import (
  //"log"
  "time"
  "net/http"
+ "strings"
 
  log "github.com/go-pkgz/lgr"
  um "github.com/go-pkgz/rest"
@@ -52,12 +53,13 @@ func (s Server) routes() chi.Router {
            //fmt.Fprintf(w, "Secret:". s.DataStore.Get("test/secret", "one"))
     })
 
-// 	router.Route("/api/v1", func(r chi.Router) {
-// 		r.Use(Logger(log.Default()))
-// 		r.Post("/message", s.saveMessageCtrl)
-// 		r.Get("/message/{key}/{pin}", s.getMessageCtrl)
-// 		r.Get("/params", s.getParamsCtrl)
-// 	})
+	router.Route("/api/v1", func(r chi.Router) {
+	    r.Get("/*", s.getValuesByKey)
+		//r.Use(Logger(log.Default()))
+		//r.Post("/message", s.saveMessageCtrl)
+		//r.Get("/message/{key}/{pin}", s.getMessageCtrl)
+		//r.Get("/params", s.getParamsCtrl)
+	})
 //
 // 	router.Get("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
 // 		render.PlainText(w, r, "User-agent: *\nDisallow: /api/\nDisallow: /show/\n")
@@ -67,14 +69,18 @@ func (s Server) routes() chi.Router {
 	return router
 }
 
-// func Run() {
-//     http.HandleFunc("/hello", helloHandler) // Update this line of code
-//
-//     fmt.Printf("Starting server at port 8080\n")
-//     if err := http.ListenAndServe(":8080", nil); err != nil {
-//         log.Fatal(err)
-//     }
-// }
+func (s Server) getValuesByKey(w http.ResponseWriter, r *http.Request) {
+    key := chi.URLParam(r, "*")
+
+    chunks := strings.Split(key, "/")
+
+    length := len(chunks)
+
+    fmt.Fprintf(w, s.DataStore.Get(chunks[0]+"/"+chunks[1], chunks[length-1]))
+
+    //log.Printf("[Debug]")
+    //log.Printf(len(chunks))
+}
 
 func helloHandler(w http.ResponseWriter, r *http.Request) {
     if r.URL.Path != "/hello" {

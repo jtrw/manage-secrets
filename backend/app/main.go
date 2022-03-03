@@ -13,10 +13,13 @@ import (
   "github.com/jessevdk/go-flags"
    "net/http"
    "io/ioutil"
+   "bytes"
   //"context"
   //"time"
 )
 const b = "test/secret"
+const host = "http://127.0.0.1"
+const port = "8080"
 
 type Options struct {
    Name string `long:"name" description:"Your name, for a greeting" default:"Unknown"`
@@ -29,8 +32,6 @@ type Commands struct {
 }
 
 func main() {
-
-
     commandName := os.Args[1]
     if commandName == "run" {
          sec := secret.Store {
@@ -46,21 +47,9 @@ func main() {
             Version:   "1.0",
         }
 
-        //go func () {
-            if err := srv.Run(); err != nil {
-                log.Printf("[ERROR] failed, %+v", err)
-            }
-        //}()
-
-//         c := make(chan os.Signal, 1)
-//         signal.Notify(c, os.Interrupt)
-//         <-c
-//
-//         // Attempt a graceful shutdown
-//         _, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-//         defer cancel()
-        //srv.Shutdown(ctx)
-        //time.Sleep(100)
+        if err := srv.Run(); err != nil {
+            log.Printf("[ERROR] failed, %+v", err)
+        }
     }
 
     if commandName == "kv" {
@@ -68,7 +57,7 @@ func main() {
         if command == "get" {
             keyStore := os.Args[3]
 
-            resp, err := http.Get("http://127.0.0.1:8080/"+keyStore)
+            resp, err := http.Get(getApiAddr()+keyStore)
             if err != nil {
                log.Fatalln(err)
             }
@@ -78,18 +67,26 @@ func main() {
                log.Fatalln(err)
             }
 
-//             v := sec.Get(b, keyStore)
-//
-//             fmt.Printf("Secret: %s\n", v)
             fmt.Printf("Secret: %s\n", body)
         }
 
-//         if command == "set" {
-//             keyStore := os.Args[3]
-//             valueStore := os.Args[4]
-//             sec.Set(b, keyStore, valueStore)
-//             fmt.Printf("Done!\n")
-//         }
+        if command == "set" {
+            keyStore := os.Args[3]
+            valueStore := os.Args[4]
+            dataByte := []byte(valueStore)
+            responseBody := bytes.NewBuffer(dataByte)
+            resp, err := http.Post(getApiAddr()+keyStore, "application/json", responseBody)
+            if err != nil {
+               log.Fatalln(err)
+            }
+
+             _, errRead := ioutil.ReadAll(resp.Body)
+             if errRead != nil {
+               log.Fatalln(errRead)
+            }
+            //sec.Set(b, keyStore, valueStore)
+            fmt.Printf("Done!\n")
+        }
     }
 
     t := reflect.TypeOf(Commands{})
@@ -112,6 +109,9 @@ func main() {
 
     //secret.Init();
     //secret.Set(b, "secondSecret", "888")
+}
 
+func getApiAddr() (string) {
+    return host+":"+port+"/api/v1/"
 }
 
