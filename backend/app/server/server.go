@@ -75,11 +75,11 @@ func (s Server) getValuesByKey(w http.ResponseWriter, r *http.Request) {
     chunks := strings.Split(key, "/")
 
     length := len(chunks)
-
-    fmt.Fprintf(w, s.DataStore.Get(chunks[0]+"/"+chunks[1], chunks[length-1]))
-
-    //log.Printf("[Debug]")
-    //log.Printf(len(chunks))
+    keyStore := chunks[length-1]
+    bucket := strings.Join(chunks[:length-1], "/")
+    log.Printf("[Debug]")
+    log.Printf(bucket)
+    fmt.Fprintf(w, s.DataStore.Get(bucket, keyStore))
 }
 
 func helloHandler(w http.ResponseWriter, r *http.Request) {
