@@ -33,13 +33,21 @@ func Set(db *bolt.DB, bucket, key, value string) {
 }
 
 func Get(db *bolt.DB, bucket, key string) string {
-  s := ""
+  val := ""
   db.View(func(tx *bolt.Tx) error {
-    b := tx.Bucket([]byte(bucket))
-    s = string(b.Get([]byte(key)))
+
+    bucket := tx.Bucket([]byte(bucket))
+    val := bucket.Get([]byte(key))
+    if val == nil {
+        log.Printf("[INFO] not found %s", key)
+        return nil
+    }
+
     return nil
   })
-  return s
+  //result = &Message{}
+  //return json.Unmarshal(val, result)
+  return val
 }
 
 func Del(db *bolt.DB, bucket, key string) {
