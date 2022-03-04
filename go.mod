@@ -9,6 +9,7 @@ require (
 	github.com/didip/tollbooth/v6 v6.1.2 // indirect
 	github.com/didip/tollbooth_chi v0.0.0-20200828173446-a7173453ea21 // indirect
 	github.com/go-chi/chi/v5 v5.0.7 // indirect
+	github.com/go-chi/render v1.0.1 // indirect
 	github.com/go-pkgz/expirable-cache v0.0.3 // indirect
 	github.com/go-pkgz/lgr v0.10.4 // indirect
 	github.com/go-pkgz/rest v1.13.0 // indirect
