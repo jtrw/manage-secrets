@@ -2,6 +2,7 @@ package server
 
 import (
  "fmt"
+ "io"
  //"log"
  "time"
  "net/http"
@@ -15,6 +16,7 @@ import (
  "github.com/didip/tollbooth_chi"
  "github.com/go-chi/chi/v5"
  "github.com/go-chi/chi/v5/middleware"
+ "github.com/go-chi/render"
 
  secret "manager-secrets/backend/app/store"
 )
@@ -27,6 +29,7 @@ type Server struct {
 	Version        string
 }
 
+type JSON map[string]interface{}
 
 func (s Server) Run() error {
 	log.Printf("[INFO] activate rest server")
@@ -46,16 +49,9 @@ func (s Server) routes() chi.Router {
 	router.Use(um.AppInfo("secrets", "jtrw", s.Version), um.Ping, um.SizeLimit(64*1024))
 	router.Use(tollbooth_chi.LimitHandler(tollbooth.NewLimiter(10, nil)))
 
-    router.Get("/hello", func(w http.ResponseWriter, r *http.Request) {
-          //fmt.Fprintf(w, s.DataStore.StorePath)
-        //  fmt.Fprintf(w, "\n")
-          fmt.Fprintf(w, s.DataStore.Get("test/secret", "one"))
-           //fmt.Fprintf(w, "Secret:". s.DataStore.Get("test/secret", "one"))
-    })
-
 	router.Route("/api/v1", func(r chi.Router) {
 	    r.Get("/kv/*", s.getValuesByKey)
-	    //r.Post("/kv/*", s.setValuesByKey)
+	    r.Post("/kv/*", s.setValuesByKey)
 		//r.Use(Logger(log.Default()))
 		//r.Get("/message/{key}/{pin}", s.getMessageCtrl)
 	})
@@ -69,7 +65,20 @@ func (s Server) routes() chi.Router {
 }
 
 func (s Server) setValuesByKey(w http.ResponseWriter, r *http.Request) {
+    b, err := io.ReadAll(r.Body)
+    if err != nil {
+        log.Printf("[ERROR] %s", err)
+    }
+    value := string(b)
+    log.Printf("[INFO] %s", value)
 
+    uri := chi.URLParam(r, "*")
+    keyStore, bucket := getKeyAndBucketByUrl(uri)
+
+    s.DataStore.Set(bucket, keyStore, value)
+
+    render.JSON(w, r, JSON{"status": "ok"})
+    return
 }
 func (s Server) getValuesByKey(w http.ResponseWriter, r *http.Request) {
     uri := chi.URLParam(r, "*")

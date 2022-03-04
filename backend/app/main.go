@@ -73,6 +73,9 @@ func main() {
         if command == "set" {
             keyStore := os.Args[3]
             valueStore := os.Args[4]
+
+
+
             dataByte := []byte(valueStore)
             responseBody := bytes.NewBuffer(dataByte)
             resp, err := http.Post(getApiAddr()+keyStore, "application/json", responseBody)
@@ -80,12 +83,12 @@ func main() {
                log.Fatalln(err)
             }
 
-             _, errRead := ioutil.ReadAll(resp.Body)
+             response, errRead := ioutil.ReadAll(resp.Body)
              if errRead != nil {
                log.Fatalln(errRead)
             }
-            //sec.Set(b, keyStore, valueStore)
-            fmt.Printf("Done!\n")
+
+            fmt.Printf("%s\n", response)
         }
     }
 
