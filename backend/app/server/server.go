@@ -54,11 +54,10 @@ func (s Server) routes() chi.Router {
     })
 
 	router.Route("/api/v1", func(r chi.Router) {
-	    r.Get("/*", s.getValuesByKey)
+	    r.Get("/kv/*", s.getValuesByKey)
+	    //r.Post("/kv/*", s.setValuesByKey)
 		//r.Use(Logger(log.Default()))
-		//r.Post("/message", s.saveMessageCtrl)
 		//r.Get("/message/{key}/{pin}", s.getMessageCtrl)
-		//r.Get("/params", s.getParamsCtrl)
 	})
 //
 // 	router.Get("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
@@ -69,17 +68,27 @@ func (s Server) routes() chi.Router {
 	return router
 }
 
-func (s Server) getValuesByKey(w http.ResponseWriter, r *http.Request) {
-    key := chi.URLParam(r, "*")
+func (s Server) setValuesByKey(w http.ResponseWriter, r *http.Request) {
 
-    chunks := strings.Split(key, "/")
+}
+func (s Server) getValuesByKey(w http.ResponseWriter, r *http.Request) {
+    uri := chi.URLParam(r, "*")
+
+    keyStore,bucket := getKeyAndBucketByUrl(uri)
+
+    log.Printf("[INFO] %s", bucket)
+    fmt.Fprintf(w, s.DataStore.Get(bucket, keyStore))
+}
+
+
+func getKeyAndBucketByUrl(uri string) (string, string) {
+    chunks := strings.Split(uri, "/")
 
     length := len(chunks)
     keyStore := chunks[length-1]
     bucket := strings.Join(chunks[:length-1], "/")
-    log.Printf("[Debug]")
-    log.Printf(bucket)
-    fmt.Fprintf(w, s.DataStore.Get(bucket, keyStore))
+
+    return keyStore, bucket
 }
 
 func helloHandler(w http.ResponseWriter, r *http.Request) {
@@ -92,7 +101,5 @@ func helloHandler(w http.ResponseWriter, r *http.Request) {
         http.Error(w, "Method is not supported.", http.StatusNotFound)
         return
     }
-
-
     fmt.Fprintf(w, "Hello!")
 }

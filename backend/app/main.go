@@ -112,6 +112,6 @@ func main() {
 }
 
 func getApiAddr() (string) {
-    return host+":"+port+"/api/v1/"
+    return host+":"+port+"/api/v1/kv/"
 }
 
