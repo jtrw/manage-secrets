@@ -86,6 +86,7 @@ func (s Server) getValuesByKey(w http.ResponseWriter, r *http.Request) {
     keyStore,bucket := getKeyAndBucketByUrl(uri)
 
     log.Printf("[INFO] %s", bucket)
+    log.Printf("[INFO] %s", keyStore)
     fmt.Fprintf(w, s.DataStore.Get(bucket, keyStore))
 }
 
