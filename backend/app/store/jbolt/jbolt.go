@@ -36,16 +36,15 @@ func Get(db *bolt.DB, bucket, key string) string {
   val := ""
   db.View(func(tx *bolt.Tx) error {
     bucket := tx.Bucket([]byte(bucket))
-    val := bucket.Get([]byte(key))
-    if val == nil {
+    v := bucket.Get([]byte(key))
+    if v == nil {
         log.Printf("[INFO] not found %s", key)
         return nil
     }
-
-    log.Printf("[INFO] FOUND %s", val)
-
+    val = string(v)
     return nil
   })
+
   //result = &Message{}
   //return json.Unmarshal(val, result)
   return val
