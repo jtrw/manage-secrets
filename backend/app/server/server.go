@@ -75,6 +75,13 @@ func (s Server) setValuesByKey(w http.ResponseWriter, r *http.Request) {
     uri := chi.URLParam(r, "*")
     keyStore, bucket := getKeyAndBucketByUrl(uri)
 
+//     message := secret.Message {
+//         Key: keyStore,
+//         Bucket: bucket,
+//         Data: value,
+//     }
+//
+//     s.DataStore.Save(&message)
     s.DataStore.Set(bucket, keyStore, value)
 
     render.JSON(w, r, JSON{"status": "ok"})
@@ -87,6 +94,12 @@ func (s Server) getValuesByKey(w http.ResponseWriter, r *http.Request) {
 
     log.Printf("[INFO] %s", bucket)
     log.Printf("[INFO] %s", keyStore)
+//      message := secret.Message {
+//             Key: keyStore,
+//             Bucket: bucket,
+//         }
+    //newMessage, _ := s.DataStore.Load(&message)
+    //fmt.Fprintf(w, newMessage.Data)
     fmt.Fprintf(w, s.DataStore.Get(bucket, keyStore))
 }
 
