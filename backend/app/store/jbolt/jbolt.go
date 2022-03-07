@@ -35,7 +35,6 @@ func Set(db *bolt.DB, bucket, key, value string) {
 func Get(db *bolt.DB, bucket, key string) string {
   val := ""
   db.View(func(tx *bolt.Tx) error {
-
     bucket := tx.Bucket([]byte(bucket))
     val := bucket.Get([]byte(key))
     if val == nil {
