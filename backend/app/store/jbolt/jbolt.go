@@ -42,6 +42,8 @@ func Get(db *bolt.DB, bucket, key string) string {
         return nil
     }
 
+    log.Printf("[INFO] FOUND %s", val)
+
     return nil
   })
   //result = &Message{}
