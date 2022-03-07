@@ -2,6 +2,7 @@ package store
 
 import (
   //"fmt"
+  "time"
   jbolt "manager-secrets/backend/app/store/jbolt"
 )
 
@@ -10,6 +11,14 @@ import (
 type Store struct {
 	StorePath string
 	JBolt jbolt.Bolt
+}
+
+type Message struct {
+	Key     string
+	Exp     time.Time
+	Data    []byte
+	PinHash string
+	Errors  int
 }
 
 func (s Store) NewStore() jbolt.Bolt {

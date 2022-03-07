@@ -34,11 +34,11 @@ type Commands struct {
 func main() {
     commandName := os.Args[1]
     if commandName == "run" {
-         sec := secret.Store {
-             StorePath: "my.db",
-         }
+        sec := secret.Store {
+            StorePath: "my.db",
+        }
 
-         sec.JBolt = sec.NewStore();
+        sec.JBolt = sec.NewStore();
 
         srv := server.Server {
             DataStore: sec,
@@ -73,9 +73,6 @@ func main() {
         if command == "set" {
             keyStore := os.Args[3]
             valueStore := os.Args[4]
-
-
-
             dataByte := []byte(valueStore)
             responseBody := bytes.NewBuffer(dataByte)
             resp, err := http.Post(getApiAddr()+keyStore, "application/json", responseBody)
@@ -107,11 +104,6 @@ func main() {
     }
     fmt.Println("Name", opts.Name)
     fmt.Println("Verbose: ", opts.Verbose)
-
-
-
-    //secret.Init();
-    //secret.Set(b, "secondSecret", "888")
 }
 
 func getApiAddr() (string) {
