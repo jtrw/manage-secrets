@@ -42,24 +42,20 @@ func (s Store) Set(bucket, key, value string) {
 }
 
 func (s Store) Save(msg *Message) {
-    _, jerr := json.Marshal(msg)
+    jdata, jerr := json.Marshal(msg)
     if jerr != nil {
         return
         //return jerr
     }
-    log.Printf("Secrert Save:");
-    log.Printf(msg.Bucket);
-    log.Printf(msg.Key);
-    jbolt.Set(s.JBolt.DB, msg.Bucket, msg.Key, "TTTT!!!!")
+    jbolt.Set(s.JBolt.DB, msg.Bucket, msg.Key, string(jdata))
 }
 
-// func (s Store) Load(msg *Message) (result *Message, err error) {
-//     log.Printf("Secrert Load:");
-//     log.Printf(msg.Bucket);
-//     log.Printf(msg.Key);
-//     val := jbolt.Get(s.JBolt.DB, msg.Bucket, msg.Key)
-//
-//     result = &Message{}
-//
-//     return json.Unmarshal([]byte(val), result)
-// }
+func (s Store) Load(bucket, key string) (result *Message, err error) {
+    val := jbolt.Get(s.JBolt.DB, bucket, key)
+    log.Printf("%s",val);
+    result = &Message{}
+
+    errMarshal := json.Unmarshal([]byte(val), result)
+
+    return result, errMarshal
+}
