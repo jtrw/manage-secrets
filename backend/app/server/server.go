@@ -77,12 +77,14 @@ func (s Server) saveValuesByKey(w http.ResponseWriter, r *http.Request) {
     uri := chi.URLParam(r, "*")
     keyStore, bucket := getKeyAndBucketByUrl(uri)
 
-    //if json
     dataJson := &secret.JSON{}
-    errJsn := json.Unmarshal([]byte(value), dataJson)
-    if errJsn != nil {
-        log.Printf("ERROR Invalid json in Data");
-        return
+
+    if r.Header.Get("Content-Type") == "application/json" {
+        errJsn := json.Unmarshal([]byte(value), dataJson)
+        if errJsn != nil {
+            log.Printf("ERROR Invalid json in Data");
+            return
+        }
     }
 
     message := secret.Message {
