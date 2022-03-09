@@ -51,7 +51,7 @@ func (s Server) routes() chi.Router {
 
 	router.Route("/api/v1", func(r chi.Router) {
 	    r.Get("/kv/*", s.getValuesByKey)
-	    r.Post("/kv/*", s.setValuesByKey)
+	    r.Post("/kv/*", s.saveValuesByKey)
 		//r.Use(Logger(log.Default()))
 		//r.Get("/message/{key}/{pin}", s.getMessageCtrl)
 	})
@@ -64,7 +64,7 @@ func (s Server) routes() chi.Router {
 	return router
 }
 
-func (s Server) setValuesByKey(w http.ResponseWriter, r *http.Request) {
+func (s Server) saveValuesByKey(w http.ResponseWriter, r *http.Request) {
     b, err := io.ReadAll(r.Body)
     if err != nil {
         log.Printf("[ERROR] %s", err)
@@ -93,7 +93,11 @@ func (s Server) getValuesByKey(w http.ResponseWriter, r *http.Request) {
     keyStore,bucket := getKeyAndBucketByUrl(uri)
 
     newMessage, _ := s.DataStore.Load(bucket, keyStore)
-    fmt.Fprintf(w, newMessage.Data)
+   // json, _ := newMessage.ToJson()
+    //fmt.Fprintf(w, string(json))
+
+    render.Status(r, http.StatusCreated)
+    render.JSON(w, r, JSON{"key": newMessage.Key, "Data": newMessage.Data})
 }
 
 
