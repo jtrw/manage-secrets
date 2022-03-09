@@ -24,6 +24,7 @@ const port = "8080"
 type Options struct {
    Name string `long:"name" description:"Your name, for a greeting" default:"Unknown"`
    Verbose string `short:"v" long:"verbose" description:"Show verbose debug information"`
+   Type string `short:"t" long:"type" description:"Type save content"`
 }
 
 type Commands struct {
@@ -32,6 +33,13 @@ type Commands struct {
 }
 
 func main() {
+    var opts Options
+    parser := flags.NewParser(&opts, flags.Default)
+    _, err := parser.Parse()
+    if err != nil {
+        log.Fatal(err)
+    }
+
     commandName := os.Args[1]
     if commandName == "run" {
         sec := secret.Store {
@@ -75,7 +83,12 @@ func main() {
             valueStore := os.Args[4]
             dataByte := []byte(valueStore)
             responseBody := bytes.NewBuffer(dataByte)
-            resp, err := http.Post(getApiAddr()+keyStore, "application/json", responseBody)
+            contentType := "text/plain"
+            if opts.Type == "json" {
+                contentType = "application/json"
+            }
+
+            resp, err := http.Post(getApiAddr()+keyStore, contentType, responseBody)
             if err != nil {
                log.Fatalln(err)
             }
@@ -94,16 +107,6 @@ func main() {
     fmt.Println(f.Tag) // one:"1" two:"2"blank:""
     val, _ := f.Tag.Lookup("name")
     fmt.Printf("%s\n", val) // 1, true
-
-
-    var opts Options
-    parser := flags.NewParser(&opts, flags.Default)
-    _, err := parser.Parse()
-    if err != nil {
-        log.Fatal(err)
-    }
-    fmt.Println("Name", opts.Name)
-    fmt.Println("Verbose: ", opts.Verbose)
 }
 
 func getApiAddr() (string) {
