@@ -44,9 +44,6 @@ func Get(db *bolt.DB, bucket, key string) string {
     val = string(v)
     return nil
   })
-
-  //result = &Message{}
-  //return json.Unmarshal(val, result)
   return val
 }
 

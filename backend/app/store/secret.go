@@ -59,3 +59,7 @@ func (s Store) Load(bucket, key string) (result *Message, err error) {
 
     return result, errMarshal
 }
+
+func (msg Message) ToJson() ([]byte, error) {
+    return json.Marshal(msg)
+}
