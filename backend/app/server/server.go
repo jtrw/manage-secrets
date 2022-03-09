@@ -19,6 +19,8 @@ import (
  "github.com/go-chi/render"
 
  secret "manager-secrets/backend/app/store"
+
+ "encoding/json"
 )
 
 type Server struct {
@@ -29,7 +31,7 @@ type Server struct {
 	Version        string
 }
 
-type JSON map[string]interface{}
+//type JSON map[string]interface{}
 
 func (s Server) Run() error {
 	log.Printf("[INFO] activate rest server")
@@ -75,16 +77,25 @@ func (s Server) saveValuesByKey(w http.ResponseWriter, r *http.Request) {
     uri := chi.URLParam(r, "*")
     keyStore, bucket := getKeyAndBucketByUrl(uri)
 
+    //if json
+    dataJson := &secret.JSON{}
+    errJsn := json.Unmarshal([]byte(value), dataJson)
+    if errJsn != nil {
+        log.Printf("ERROR Invalid json in Data");
+        return
+    }
+
     message := secret.Message {
         Key: keyStore,
         Bucket: bucket,
         Data: value,
+        DataJson: *dataJson,
     }
 
     s.DataStore.Save(&message)
     //s.DataStore.Set(bucket, keyStore, value)
 
-    render.JSON(w, r, JSON{"status": "ok"})
+    render.JSON(w, r, secret.JSON{"status": "ok"})
     return
 }
 func (s Server) getValuesByKey(w http.ResponseWriter, r *http.Request) {
@@ -93,11 +104,19 @@ func (s Server) getValuesByKey(w http.ResponseWriter, r *http.Request) {
     keyStore,bucket := getKeyAndBucketByUrl(uri)
 
     newMessage, _ := s.DataStore.Load(bucket, keyStore)
-   // json, _ := newMessage.ToJson()
+    //json, _ := newMessage.ToJson()
     //fmt.Fprintf(w, string(json))
 
+//     dataJson, err := json.Marshal(newMessage.DataJson)
+//     if err != nil {
+//         panic(err)
+//     }
+
     render.Status(r, http.StatusCreated)
-    render.JSON(w, r, JSON{"key": newMessage.Key, "Data": newMessage.Data})
+    render.JSON(w, r, newMessage)
+    render.JSON(w, r, newMessage.DataJson)
+    //render.JSON(w, r, JSON{"key": newMessage.Key, "Data": newMessage.Data})
+    //render.JSON(w, r, JSON{"Data": json.newMessage.Data})
 }
 
 

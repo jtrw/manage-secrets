@@ -16,12 +16,14 @@ type Store struct {
 	StorePath string
 	JBolt jbolt.Bolt
 }
+type JSON map[string]interface{}
 
 type Message struct {
 	Key     string
 	Bucket  string
 	Exp     time.Time
 	Data    string
+	DataJson JSON
 	//Data    []byte
 	PinHash string
 	Errors  int
@@ -61,5 +63,5 @@ func (s Store) Load(bucket, key string) (result *Message, err error) {
 }
 
 func (msg Message) ToJson() ([]byte, error) {
-    return json.Marshal(msg)
+    return json.Marshal(msg.Data)
 }
