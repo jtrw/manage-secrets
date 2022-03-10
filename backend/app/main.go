@@ -4,7 +4,7 @@ import (
   "log"
   "os"
   //"os/signal"
-   "reflect"
+ //  "reflect"
   //
   //"time"
   //"flag"
@@ -27,10 +27,7 @@ type Options struct {
    Type string `short:"t" long:"type" description:"Type save content"`
 }
 
-type Commands struct {
-   Run string `name:"run" description:"Start server"`
-   Kv string `name:"kv" description:"Key value storage"`
-}
+
 
 func main() {
     var opts Options
@@ -101,12 +98,6 @@ func main() {
             fmt.Printf("%s\n", response)
         }
     }
-
-    t := reflect.TypeOf(Commands{})
-    f, _ := t.FieldByName("Run")
-    fmt.Println(f.Tag) // one:"1" two:"2"blank:""
-    val, _ := f.Tag.Lookup("name")
-    fmt.Printf("%s\n", val) // 1, true
 }
 
 func getApiAddr() (string) {
