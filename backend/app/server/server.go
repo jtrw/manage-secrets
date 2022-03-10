@@ -78,13 +78,14 @@ func (s Server) saveValuesByKey(w http.ResponseWriter, r *http.Request) {
     keyStore, bucket := getKeyAndBucketByUrl(uri)
 
     dataJson := &secret.JSON{}
-
-    if r.Header.Get("Content-Type") == "application/json" {
+    dataType := "text"
+    if isContentTypeJson(r) {
         errJsn := json.Unmarshal([]byte(value), dataJson)
         if errJsn != nil {
             log.Printf("ERROR Invalid json in Data");
             return
         }
+        dataType = "json"
     }
 
     message := secret.Message {
@@ -92,6 +93,7 @@ func (s Server) saveValuesByKey(w http.ResponseWriter, r *http.Request) {
         Bucket: bucket,
         Data: value,
         DataJson: *dataJson,
+        Type: dataType,
     }
 
     s.DataStore.Save(&message)
@@ -102,21 +104,25 @@ func (s Server) saveValuesByKey(w http.ResponseWriter, r *http.Request) {
 }
 func (s Server) getValuesByKey(w http.ResponseWriter, r *http.Request) {
     uri := chi.URLParam(r, "*")
+    log.Printf("ContentType: %s", r.Header.Get("Content-Type"))
+    onlyData := r.URL.Query().Get("onlyData")
 
     keyStore,bucket := getKeyAndBucketByUrl(uri)
 
     newMessage, _ := s.DataStore.Load(bucket, keyStore)
-    //json, _ := newMessage.ToJson()
-    //fmt.Fprintf(w, string(json))
-
-//     dataJson, err := json.Marshal(newMessage.DataJson)
-//     if err != nil {
-//         panic(err)
-//     }
 
     render.Status(r, http.StatusCreated)
-    render.JSON(w, r, newMessage)
-    render.JSON(w, r, newMessage.DataJson)
+    if len(onlyData) > 0 {
+        if isContentTypeJson(r) {
+            render.JSON(w, r, newMessage.DataJson)
+            return
+        }
+        render.JSON(w, r, newMessage.Data)
+    } else {
+        render.JSON(w, r, newMessage)
+    }
+
+
     //render.JSON(w, r, JSON{"key": newMessage.Key, "Data": newMessage.Data})
     //render.JSON(w, r, JSON{"Data": json.newMessage.Data})
 }
@@ -130,6 +136,10 @@ func getKeyAndBucketByUrl(uri string) (string, string) {
     bucket := strings.Join(chunks[:length-1], "/")
 
     return keyStore, bucket
+}
+
+func isContentTypeJson(r *http.Request) bool {
+    return r.Header.Get("Content-Type") == strings.ToLower("application/json")
 }
 
 func helloHandler(w http.ResponseWriter, r *http.Request) {

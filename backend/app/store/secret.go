@@ -22,6 +22,7 @@ type Message struct {
 	Key     string
 	Bucket  string
 	Exp     time.Time
+	Type    string
 	Data    string
 	DataJson JSON
 	//Data    []byte
