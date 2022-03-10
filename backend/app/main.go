@@ -10,6 +10,7 @@ import (
   //"flag"
   secret "manager-secrets/backend/app/store"
   server "manager-secrets/backend/app/server"
+  command "manager-secrets/backend/app/cmd"
   "github.com/jessevdk/go-flags"
    "net/http"
    "io/ioutil"
@@ -30,6 +31,8 @@ type Options struct {
 
 
 func main() {
+    command.Parse()
+
     var opts Options
     parser := flags.NewParser(&opts, flags.Default)
     _, err := parser.Parse()
