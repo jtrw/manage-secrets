@@ -17,6 +17,7 @@ import (
    "bytes"
   //"context"
   //"time"
+  //"time"
 )
 
 const host = "http://127.0.0.1"
@@ -72,44 +73,54 @@ func makeRunCommand() {
 
 func makeKvCommand(opts Options) {
     command := os.Args[2]
-    if command == "get" {
-        keyStore := os.Args[3]
 
-        resp, err := http.Get(getApiAddr()+keyStore)
-        if err != nil {
-           log.Fatalln(err)
-        }
+    switch command {
+        case "get":
+            makeGetSubCommand()
+        case "set":
+            makeSetSubCommand(opts)
+        default:
+            log.Fatal("Sub Command name not found")
+    }
+}
 
-         body, err := ioutil.ReadAll(resp.Body)
-         if err != nil {
-           log.Fatalln(err)
-        }
+func makeGetSubCommand() {
+    keyStore := os.Args[3]
 
-        fmt.Printf("Secret: %s\n", body)
+    resp, err := http.Get(getApiAddr()+keyStore)
+    if err != nil {
+       log.Fatalln(err)
     }
 
-    if command == "set" {
-        keyStore := os.Args[3]
-        valueStore := os.Args[4]
-        dataByte := []byte(valueStore)
-        responseBody := bytes.NewBuffer(dataByte)
-        contentType := "text/plain"
-        if opts.Type == "json" {
-            contentType = "application/json"
-        }
-
-        resp, err := http.Post(getApiAddr()+keyStore, contentType, responseBody)
-        if err != nil {
-           log.Fatalln(err)
-        }
-
-         response, errRead := ioutil.ReadAll(resp.Body)
-         if errRead != nil {
-           log.Fatalln(errRead)
-        }
-
-        fmt.Printf("%s\n", response)
+     body, err := ioutil.ReadAll(resp.Body)
+     if err != nil {
+       log.Fatalln(err)
     }
+
+    fmt.Printf("Secret: %s\n", body)
+}
+
+func makeSetSubCommand(opts Options) {
+    keyStore := os.Args[3]
+    valueStore := os.Args[4]
+    dataByte := []byte(valueStore)
+    responseBody := bytes.NewBuffer(dataByte)
+    contentType := "text/plain"
+    if opts.Type == "json" {
+        contentType = "application/json"
+    }
+
+    resp, err := http.Post(getApiAddr()+keyStore, contentType, responseBody)
+    if err != nil {
+       log.Fatalln(err)
+    }
+
+     response, errRead := ioutil.ReadAll(resp.Body)
+     if errRead != nil {
+       log.Fatalln(errRead)
+    }
+
+    fmt.Printf("%s\n", response)
 }
 
 func getApiAddr() (string) {
