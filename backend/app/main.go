@@ -18,17 +18,18 @@ import (
   //"context"
   //"time"
 )
-const b = "test/secret"
+
 const host = "http://127.0.0.1"
 const port = "8080"
 
 type Options struct {
    Name string `long:"name" description:"Your name, for a greeting" default:"Unknown"`
    Verbose string `short:"v" long:"verbose" description:"Show verbose debug information"`
-   Type string `short:"t" long:"type" description:"Type save content"`
+
+   Type string `short:"t" long:"type" description:"Type content save content"`
+   Host string `short:"h" long:"host" default:"http://127.0.0.1" description:"Host web server"`
+   Port string `short:"p" long:"port" default:"8080" description:"Port web server"`
 }
-
-
 
 func main() {
     //command.Parse()
@@ -47,13 +48,6 @@ func main() {
             makeKvCommand(opts)
         default:
             log.Fatal("Command name not found")
-    }
-    if commandName == "run" {
-
-    }
-
-    if commandName == "kv" {
-
     }
 }
 
