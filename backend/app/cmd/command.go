@@ -20,7 +20,10 @@ func Parse() {
 
     MethodName, _ := run.Tag.Lookup("method")
 
-    reflect.ValueOf(&cmd).MethodByName(MethodName).Call([]reflect.Value{})
+     //inputs := make([]reflect.Value, 1)
+    //inputs[0] = reflect.ValueOf(2)
+
+
 //     if ok {
 //          cmd.RunServer()
 //     }
@@ -28,6 +31,18 @@ func Parse() {
    // fmt.Println(f.Tag) // one:"1" two:"2"blank:""
    // val, _ := f.Tag.Lookup("name")
    // fmt.Printf("%s\n", val) // 1, true
+}
+
+func Execute() {
+    var cmd Commands
+
+    t := reflect.TypeOf(cmd)
+
+    run, _ := t.FieldByName(os.Args[1])
+
+    MethodName, _ := run.Tag.Lookup("method")
+
+    reflect.ValueOf(&cmd).MethodByName(MethodName).Call([]reflect.Value{})
 }
 
 

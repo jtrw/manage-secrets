@@ -10,7 +10,7 @@ import (
   //"flag"
   secret "manager-secrets/backend/app/store"
   server "manager-secrets/backend/app/server"
-  command "manager-secrets/backend/app/cmd"
+ // command "manager-secrets/backend/app/cmd"
   "github.com/jessevdk/go-flags"
    "net/http"
    "io/ioutil"
@@ -31,8 +31,7 @@ type Options struct {
 
 
 func main() {
-    command.Parse()
-
+    //command.Parse()
     var opts Options
     parser := flags.NewParser(&opts, flags.Default)
     _, err := parser.Parse()
@@ -41,65 +40,81 @@ func main() {
     }
 
     commandName := os.Args[1]
+    switch commandName {
+        case "run":
+            makeRunCommand()
+        case "kv":
+            makeKvCommand(opts)
+        default:
+            log.Fatal("Command name not found")
+    }
     if commandName == "run" {
-        sec := secret.Store {
-            StorePath: "my.db",
-        }
 
-        sec.JBolt = sec.NewStore();
-
-        srv := server.Server {
-            DataStore: sec,
-            PinSize:   1,
-            WebRoot:   "/",
-            Version:   "1.0",
-        }
-
-        if err := srv.Run(); err != nil {
-            log.Printf("[ERROR] failed, %+v", err)
-        }
     }
 
     if commandName == "kv" {
-        command := os.Args[2]
-        if command == "get" {
-            keyStore := os.Args[3]
 
-            resp, err := http.Get(getApiAddr()+keyStore)
-            if err != nil {
-               log.Fatalln(err)
-            }
+    }
+}
 
-             body, err := ioutil.ReadAll(resp.Body)
-             if err != nil {
-               log.Fatalln(err)
-            }
+func makeRunCommand() {
+    sec := secret.Store {
+        StorePath: "my.db",
+    }
 
-            fmt.Printf("Secret: %s\n", body)
+    sec.JBolt = sec.NewStore();
+
+    srv := server.Server {
+        DataStore: sec,
+        PinSize:   1,
+        WebRoot:   "/",
+        Version:   "1.0",
+    }
+
+    if err := srv.Run(); err != nil {
+        log.Printf("[ERROR] failed, %+v", err)
+    }
+}
+
+func makeKvCommand(opts Options) {
+    command := os.Args[2]
+    if command == "get" {
+        keyStore := os.Args[3]
+
+        resp, err := http.Get(getApiAddr()+keyStore)
+        if err != nil {
+           log.Fatalln(err)
         }
 
-        if command == "set" {
-            keyStore := os.Args[3]
-            valueStore := os.Args[4]
-            dataByte := []byte(valueStore)
-            responseBody := bytes.NewBuffer(dataByte)
-            contentType := "text/plain"
-            if opts.Type == "json" {
-                contentType = "application/json"
-            }
-
-            resp, err := http.Post(getApiAddr()+keyStore, contentType, responseBody)
-            if err != nil {
-               log.Fatalln(err)
-            }
-
-             response, errRead := ioutil.ReadAll(resp.Body)
-             if errRead != nil {
-               log.Fatalln(errRead)
-            }
-
-            fmt.Printf("%s\n", response)
+         body, err := ioutil.ReadAll(resp.Body)
+         if err != nil {
+           log.Fatalln(err)
         }
+
+        fmt.Printf("Secret: %s\n", body)
+    }
+
+    if command == "set" {
+        keyStore := os.Args[3]
+        valueStore := os.Args[4]
+        dataByte := []byte(valueStore)
+        responseBody := bytes.NewBuffer(dataByte)
+        contentType := "text/plain"
+        if opts.Type == "json" {
+            contentType = "application/json"
+        }
+
+        resp, err := http.Post(getApiAddr()+keyStore, contentType, responseBody)
+        if err != nil {
+           log.Fatalln(err)
+        }
+
+         response, errRead := ioutil.ReadAll(resp.Body)
+         if errRead != nil {
+           log.Fatalln(errRead)
+        }
+
+        fmt.Printf("%s\n", response)
     }
 }
 
