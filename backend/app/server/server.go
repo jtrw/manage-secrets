@@ -34,7 +34,10 @@ type Server struct {
 //type JSON map[string]interface{}
 
 func (s Server) Run() error {
-	log.Printf("[INFO] activate rest server")
+    log.Printf("[INFO] Activate rest server")
+    log.Printf("[INFO] Host: 127.0.0.1")
+    log.Printf("[INFO] Port: 8080")
+
 	if err := http.ListenAndServe(":8080", s.routes()); err != http.ErrServerClosed {
 		//return errors.Wrap(err, "server failed")
 		return errors.Wrap(err, "server failed")
