@@ -32,6 +32,10 @@ type Options struct {
    Port string `short:"p" long:"port" default:"8080" description:"Port web server"`
 }
 
+type KvCommand struct {
+	ContentType        string
+}
+
 func main() {
     //command.Parse()
     var opts Options
@@ -72,19 +76,23 @@ func makeRunCommand() {
 }
 
 func makeKvCommand(opts Options) {
+
+    kvc := KvCommand {
+        ContentType: opts.Type,
+    }
     command := os.Args[2]
 
     switch command {
         case "get":
-            makeGetSubCommand()
+            kvc.makeGetSubCommand()
         case "set":
-            makeSetSubCommand(opts)
+            kvc.makeSetSubCommand()
         default:
             log.Fatal("Sub Command name not found")
     }
 }
 
-func makeGetSubCommand() {
+func (kvc KvCommand) makeGetSubCommand() {
     keyStore := os.Args[3]
 
     resp, err := http.Get(getApiAddr()+keyStore)
@@ -100,13 +108,13 @@ func makeGetSubCommand() {
     fmt.Printf("Secret: %s\n", body)
 }
 
-func makeSetSubCommand(opts Options) {
+func (kvc KvCommand) makeSetSubCommand() {
     keyStore := os.Args[3]
     valueStore := os.Args[4]
     dataByte := []byte(valueStore)
     responseBody := bytes.NewBuffer(dataByte)
     contentType := "text/plain"
-    if opts.Type == "json" {
+    if kvc.ContentType == "json" {
         contentType = "application/json"
     }
 
