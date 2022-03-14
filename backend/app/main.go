@@ -33,7 +33,12 @@ type Options struct {
 }
 
 type KvCommand struct {
-	ContentType        string
+	ContentType string
+}
+
+type MainCommand struct {
+    CommandName string
+	Opts       Options
 }
 
 func main() {
@@ -45,18 +50,25 @@ func main() {
         log.Fatal(err)
     }
 
-    commandName := os.Args[1]
-    switch commandName {
+     mc := MainCommand {
+        CommandName: os.Args[1],
+        Opts: opts,
+    }
+    mc.Start()
+}
+
+func (mc MainCommand) Start() {
+    switch mc.CommandName {
         case "run":
-            makeRunCommand()
+            mc.makeRunCommand()
         case "kv":
-            makeKvCommand(opts)
+            mc.makeKvCommand()
         default:
             log.Fatal("Command name not found")
     }
 }
 
-func makeRunCommand() {
+func (mc MainCommand) makeRunCommand() {
     sec := secret.Store {
         StorePath: "my.db",
     }
@@ -75,10 +87,10 @@ func makeRunCommand() {
     }
 }
 
-func makeKvCommand(opts Options) {
+func (mc MainCommand) makeKvCommand() {
 
     kvc := KvCommand {
-        ContentType: opts.Type,
+        ContentType: mc.Opts.Type,
     }
     command := os.Args[2]
 
