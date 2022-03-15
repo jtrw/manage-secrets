@@ -5,6 +5,13 @@
 `go run backend/app/main.go kv set fkey value` - Set Value
 `go run backend/app/main.go kv get fkey` - Get Value
 
+## Api
+
+`GET: http://127.0.0.1:8080/api/v1/kv/one/two?onlyData=1`
+
+Params `onlyData` means it will be output only clear data without system information
+
+
 
 ## Use
 1. boltdb
