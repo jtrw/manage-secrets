@@ -28,7 +28,7 @@ type Options struct {
    Verbose string `short:"v" long:"verbose" description:"Show verbose debug information"`
 
    Type string `short:"t" long:"type" description:"Type content save content"`
-   Host string `short:"h" long:"host" default:"http://127.0.0.1" description:"Host web server"`
+   Host string `short:"h" long:"host" default:"127.0.0.1" description:"Host web server"`
    Port string `short:"p" long:"port" default:"8080" description:"Port web server"`
 }
 
@@ -73,10 +73,12 @@ func (mc MainCommand) makeRunCommand() {
         StorePath: "my.db",
     }
 
-    sec.JBolt = sec.NewStore();
+    sec.JBolt = sec.NewStore()
 
     srv := server.Server {
         DataStore: sec,
+        Host: mc.Opts.Host,
+        Port: mc.Opts.Port,
         PinSize:   1,
         WebRoot:   "/",
         Version:   "1.0",
@@ -88,7 +90,6 @@ func (mc MainCommand) makeRunCommand() {
 }
 
 func (mc MainCommand) makeKvCommand() {
-
     kvc := KvCommand {
         ContentType: mc.Opts.Type,
     }

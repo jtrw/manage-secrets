@@ -25,6 +25,8 @@ import (
 
 type Server struct {
     DataStore      secret.Store
+    Host           string
+    Port           string
 	PinSize        int
 	MaxPinAttempts int
 	WebRoot        string
@@ -35,11 +37,10 @@ type Server struct {
 
 func (s Server) Run() error {
     log.Printf("[INFO] Activate rest server")
-    log.Printf("[INFO] Host: 127.0.0.1")
-    log.Printf("[INFO] Port: 8080")
+    log.Printf("[INFO] Host: %s", s.Host)
+    log.Printf("[INFO] Port: %s", s.Port)
 
-	if err := http.ListenAndServe(":8080", s.routes()); err != http.ErrServerClosed {
-		//return errors.Wrap(err, "server failed")
+	if err := http.ListenAndServe(s.Host+":"+s.Port, s.routes()); err != http.ErrServerClosed {
 		return errors.Wrap(err, "server failed")
 	}
 
