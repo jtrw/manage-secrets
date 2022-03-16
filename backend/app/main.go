@@ -10,7 +10,7 @@ import (
   //"flag"
   secret "manager-secrets/backend/app/store"
   server "manager-secrets/backend/app/server"
- // command "manager-secrets/backend/app/cmd"
+  output "manager-secrets/backend/app/cmd"
   "github.com/jessevdk/go-flags"
    "net/http"
    "io/ioutil"
@@ -24,9 +24,6 @@ const host = "http://127.0.0.1"
 const port = "8080"
 
 type Options struct {
-   Name string `long:"name" description:"Your name, for a greeting" default:"Unknown"`
-   Verbose string `short:"v" long:"verbose" description:"Show verbose debug information"`
-
    Type string `short:"t" long:"type" description:"Type content save content"`
    Host string `short:"h" long:"host" default:"127.0.0.1" description:"Host web server"`
    Port string `short:"p" long:"port" default:"8080" description:"Port web server"`
@@ -118,7 +115,8 @@ func (kvc KvCommand) makeGetSubCommand() {
        log.Fatalln(err)
     }
 
-    fmt.Printf("Secret: %s\n", body)
+    output.Print(body)
+    //fmt.Printf("Secret: %s\n", body)
 }
 
 func (kvc KvCommand) makeSetSubCommand() {
