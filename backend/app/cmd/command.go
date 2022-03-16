@@ -1,4 +1,4 @@
-package command
+package cmd
 
 import (
   "fmt"
@@ -19,7 +19,7 @@ func Parse() {
     run, _ := t.FieldByName(os.Args[1])
 
     MethodName, _ := run.Tag.Lookup("method")
-
+    fmt.Printf("%s\n", MethodName)
      //inputs := make([]reflect.Value, 1)
     //inputs[0] = reflect.ValueOf(2)
 
