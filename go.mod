@@ -10,6 +10,7 @@ require (
 	github.com/go-pkgz/lgr v0.10.4
 	github.com/go-pkgz/rest v1.13.0
 	github.com/jessevdk/go-flags v1.5.0
+	github.com/joho/godotenv v1.4.0
 	github.com/nilBora/bolt v1.3.1
 	github.com/pkg/errors v0.9.1
 )

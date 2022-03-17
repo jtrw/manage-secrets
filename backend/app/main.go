@@ -15,13 +15,14 @@ import (
    "net/http"
    "io/ioutil"
    "bytes"
+   "github.com/joho/godotenv"
   //"context"
   //"time"
   //"time"
 )
 
-const host = "http://127.0.0.1"
-const port = "8080"
+const ENV_HOST_KEY = "JTRW_MANAGER_SECRETS_HOST"
+const ENV_PORT_KEY = "JTRW_MANAGER_SECRETS_PORT"
 
 type Options struct {
    Type string `short:"t" long:"type" description:"Type content save content"`
@@ -39,6 +40,7 @@ type MainCommand struct {
 }
 
 func main() {
+    godotenv.Load()
     //command.Parse()
     var opts Options
     parser := flags.NewParser(&opts, flags.Default)
@@ -72,10 +74,23 @@ func (mc MainCommand) makeRunCommand() {
 
     sec.JBolt = sec.NewStore()
 
+  //  os.Setenv(ENV_HOST_KEY, mc.Opts.Host)
+  //  os.Setenv(ENV_PORT_KEY, mc.Opts.Port)
+    host := mc.Opts.Host
+    port := mc.Opts.Port
+    hostEnv := os.Getenv(ENV_HOST_KEY)
+    if len(hostEnv) > 0 {
+        host = hostEnv
+    }
+    portEnv := os.Getenv(ENV_PORT_KEY)
+    if len(portEnv) > 0 {
+        port = portEnv
+    }
+
     srv := server.Server {
         DataStore: sec,
-        Host: mc.Opts.Host,
-        Port: mc.Opts.Port,
+        Host: host,
+        Port: port,
         PinSize:   1,
         WebRoot:   "/",
         Version:   "1.0",
@@ -94,15 +109,15 @@ func (mc MainCommand) makeKvCommand() {
 
     switch command {
         case "get":
-            kvc.makeGetSubCommand()
+            kvc.makeKvGetCommand()
         case "set":
-            kvc.makeSetSubCommand()
+            kvc.makeKvSetCommand()
         default:
             log.Fatal("Sub Command name not found")
     }
 }
 
-func (kvc KvCommand) makeGetSubCommand() {
+func (kvc KvCommand) makeKvGetCommand() {
     keyStore := os.Args[3]
 
     resp, err := http.Get(getApiAddr()+keyStore)
@@ -116,10 +131,9 @@ func (kvc KvCommand) makeGetSubCommand() {
     }
 
     output.Print(body)
-    //fmt.Printf("Secret: %s\n", body)
 }
 
-func (kvc KvCommand) makeSetSubCommand() {
+func (kvc KvCommand) makeKvSetCommand() {
     keyStore := os.Args[3]
     valueStore := os.Args[4]
     dataByte := []byte(valueStore)
@@ -143,6 +157,8 @@ func (kvc KvCommand) makeSetSubCommand() {
 }
 
 func getApiAddr() (string) {
-    return host+":"+port+"/api/v1/kv/"
+    host := os.Getenv(ENV_HOST_KEY)
+    port := os.Getenv(ENV_PORT_KEY)
+    return "http://"+host+":"+port+"/api/v1/kv/"
 }
 

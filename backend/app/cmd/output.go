@@ -16,13 +16,14 @@ func Print(body []byte) {
      }
 
     fmt.Printf("======= Metadata =======\n")
-    fmt.Printf("Key    Value\n")
-    fmt.Printf("---    -----\n")
+    fmt.Printf("Key     Value\n")
+    fmt.Printf("---     -----\n")
     fmt.Printf("Exp     %s\n", result.Exp)
+    fmt.Printf("Type    %s\n", result.Type)
+    fmt.Printf("Bucket  %s\n", result.Bucket)
 
     fmt.Printf("\n======= Data =======\n")
     fmt.Printf("Key    Value\n")
     fmt.Printf("---    -----\n")
-    fmt.Printf("%s      %s\n", result.Key, result.Data)
-
+    fmt.Printf("%s    %s\n", result.Key, result.Data)
 }
