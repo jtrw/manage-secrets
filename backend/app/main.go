@@ -28,6 +28,7 @@ type Options struct {
    Type string `short:"t" long:"type" description:"Type content save content"`
    Host string `short:"h" long:"host" default:"127.0.0.1" description:"Host web server"`
    Port string `short:"p" long:"port" default:"8080" description:"Port web server"`
+   StoragePath string `short:"s" long:"storage_path" default:"/var/tmp/jtrw_manager_s.db" description:"Storage Path"`
 }
 
 type KvCommand struct {
@@ -41,7 +42,7 @@ type MainCommand struct {
 
 func main() {
     godotenv.Load()
-    //command.Parse()
+
     var opts Options
     parser := flags.NewParser(&opts, flags.Default)
     _, err := parser.Parse()
@@ -69,13 +70,11 @@ func (mc MainCommand) Start() {
 
 func (mc MainCommand) makeRunCommand() {
     sec := secret.Store {
-        StorePath: "my.db",
+        StorePath: mc.Opts.StoragePath,
     }
 
     sec.JBolt = sec.NewStore()
 
-  //  os.Setenv(ENV_HOST_KEY, mc.Opts.Host)
-  //  os.Setenv(ENV_PORT_KEY, mc.Opts.Port)
     host := mc.Opts.Host
     port := mc.Opts.Port
     hostEnv := os.Getenv(ENV_HOST_KEY)
