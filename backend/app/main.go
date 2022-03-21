@@ -77,8 +77,30 @@ func (mc MainCommand) makeInstallCommand() {
     // XXX: add to package token
     token := GenerateSecureToken(20)
 
+    contentType := "application/json"
+    url := getApiAddr()+"token/"
+
+    body := fmt.Sprintf("{token:%s}", token)
+
+    dataByte := []byte(body)
+
+    responseBody := bytes.NewBuffer(dataByte)
+
+    resp, err := http.Post(url, contentType, responseBody)
+    if err != nil {
+       log.Fatalln(err)
+    }
+
+    response, errRead := ioutil.ReadAll(resp.Body)
+    if errRead != nil {
+       log.Fatalln(errRead)
+    }
+
+
     fmt.Printf("Please add this token to .env file. Property %s \n", ENV_TOKEN_KEY)
     fmt.Printf("Token: %s \n", token)
+
+    fmt.Printf("%s\n", response)
 }
 
 func GenerateSecureToken(length int) string {
@@ -140,7 +162,7 @@ func (mc MainCommand) makeKvCommand() {
 func (kvc KvCommand) makeKvGetCommand() {
     keyStore := os.Args[3]
 
-    resp, err := http.Get(getApiAddr()+keyStore)
+    resp, err := http.Get(getApiAddr()+"kv/"+keyStore)
     if err != nil {
        log.Fatalln(err)
     }
@@ -163,7 +185,7 @@ func (kvc KvCommand) makeKvSetCommand() {
         contentType = "application/json"
     }
 
-    resp, err := http.Post(getApiAddr()+keyStore, contentType, responseBody)
+    resp, err := http.Post(getApiAddr()+"kv/"+keyStore, contentType, responseBody)
     if err != nil {
        log.Fatalln(err)
     }
@@ -179,6 +201,6 @@ func (kvc KvCommand) makeKvSetCommand() {
 func getApiAddr() (string) {
     host := os.Getenv(ENV_HOST_KEY)
     port := os.Getenv(ENV_PORT_KEY)
-    return "http://"+host+":"+port+"/api/v1/kv/"
+    return "http://"+host+":"+port+"/api/v1/"
 }
 

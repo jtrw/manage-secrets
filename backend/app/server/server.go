@@ -57,6 +57,7 @@ func (s Server) routes() chi.Router {
 	router.Route("/api/v1", func(r chi.Router) {
 	    r.Get("/kv/*", s.getValuesByKey)
 	    r.Post("/kv/*", s.saveValuesByKey)
+	    r.Post("/token/", s.saveToken)
 		//r.Use(Logger(log.Default()))
 		//r.Get("/message/{key}/{pin}", s.getMessageCtrl)
 	})
@@ -67,6 +68,35 @@ func (s Server) routes() chi.Router {
 //
 // 	s.fileServer(router, "/", http.Dir(s.WebRoot))
 	return router
+}
+
+func (s Server) saveToken(w http.ResponseWriter, r *http.Request) {
+    b, err := io.ReadAll(r.Body)
+    if err != nil {
+        log.Printf("[ERROR] %s", err)
+    }
+    value := string(b)
+
+    dataJson := &secret.JSON{}
+
+    errJsn := json.Unmarshal([]byte(value), dataJson)
+    if errJsn != nil {
+        log.Printf("ERROR Invalid json in Data");
+        return
+    }
+    dataType := "json"
+
+    message := secret.Message {
+        Key: "token",
+        Bucket: "secret",
+        Data: value,
+        DataJson: *dataJson,
+        Type: dataType,
+    }
+
+    s.DataStore.Save(&message)
+
+    render.JSON(w, r, secret.JSON{"status": "ok"})
 }
 
 func (s Server) saveValuesByKey(w http.ResponseWriter, r *http.Request) {
