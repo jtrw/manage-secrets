@@ -82,7 +82,7 @@ func (mc MainCommand) makeInstallCommand() {
 
     body := fmt.Sprintf("{token:%s}", token)
 
-    dataByte := []byte(body)
+    dataByte := []byte(bodyit )
 
     responseBody := bytes.NewBuffer(dataByte)
 
