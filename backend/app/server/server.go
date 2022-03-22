@@ -7,6 +7,8 @@ import (
  "time"
  "net/http"
  "strings"
+ "crypto/rand"
+ "encoding/hex"
 
  log "github.com/go-pkgz/lgr"
  um "github.com/go-pkgz/rest"
@@ -22,6 +24,7 @@ import (
 
  "encoding/json"
 )
+const ENV_TOKEN_KEY = "APP_JTRW_SECRET_TOKEN"
 
 type Server struct {
     DataStore      secret.Store
@@ -49,6 +52,13 @@ func (s Server) Run() error {
 func (s Server) routes() chi.Router {
 	router := chi.NewRouter()
 
+    token := GenerateSecureToken(20)
+
+    fmt.Printf("Please add this token to .env file. Property %s \n", ENV_TOKEN_KEY)
+    fmt.Printf("Token: %s \n", token)
+    s.saveToken(token)
+
+    router.Use(middleware.Logger)
 	router.Use(middleware.RequestID, middleware.RealIP, um.Recoverer(log.Default()))
 	router.Use(middleware.Throttle(1000), middleware.Timeout(60*time.Second))
 	router.Use(um.AppInfo("secrets", "jtrw", s.Version), um.Ping, um.SizeLimit(64*1024))
@@ -57,7 +67,7 @@ func (s Server) routes() chi.Router {
 	router.Route("/api/v1", func(r chi.Router) {
 	    r.Get("/kv/*", s.getValuesByKey)
 	    r.Post("/kv/*", s.saveValuesByKey)
-	    r.Post("/token/", s.saveToken)
+	   // r.Post("/token/", s.saveToken)
 		//r.Use(Logger(log.Default()))
 		//r.Get("/message/{key}/{pin}", s.getMessageCtrl)
 	})
@@ -70,33 +80,22 @@ func (s Server) routes() chi.Router {
 	return router
 }
 
-func (s Server) saveToken(w http.ResponseWriter, r *http.Request) {
-    b, err := io.ReadAll(r.Body)
-    if err != nil {
-        log.Printf("[ERROR] %s", err)
+func GenerateSecureToken(length int) string {
+    b := make([]byte, length)
+    if _, err := rand.Read(b); err != nil {
+        return ""
     }
-    value := string(b)
+    return hex.EncodeToString(b)
+}
 
-    dataJson := &secret.JSON{}
-
-    errJsn := json.Unmarshal([]byte(value), dataJson)
-    if errJsn != nil {
-        log.Printf("ERROR Invalid json in Data");
-        return
-    }
-    dataType := "json"
-
+func (s Server) saveToken(token string) {
     message := secret.Message {
         Key: "token",
         Bucket: "secret",
-        Data: value,
-        DataJson: *dataJson,
-        Type: dataType,
+        Data: token,
     }
 
     s.DataStore.Save(&message)
-
-    render.JSON(w, r, secret.JSON{"status": "ok"})
 }
 
 func (s Server) saveValuesByKey(w http.ResponseWriter, r *http.Request) {
