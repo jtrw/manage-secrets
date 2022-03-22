@@ -14,10 +14,10 @@ import (
   server "manager-secrets/backend/app/server"
   output "manager-secrets/backend/app/cmd"
   "github.com/jessevdk/go-flags"
-   "net/http"
-   "io/ioutil"
-   "bytes"
-   "github.com/joho/godotenv"
+  "net/http"
+  "io/ioutil"
+  "bytes"
+  "github.com/joho/godotenv"
   //"context"
   //"time"
   //"time"
@@ -77,30 +77,24 @@ func (mc MainCommand) makeInstallCommand() {
     // XXX: add to package token
     token := GenerateSecureToken(20)
 
-    contentType := "application/json"
-    url := getApiAddr()+"token/"
-
-    body := fmt.Sprintf("{token:%s}", token)
-
-    dataByte := []byte(bodyit )
-
-    responseBody := bytes.NewBuffer(dataByte)
-
-    resp, err := http.Post(url, contentType, responseBody)
-    if err != nil {
-       log.Fatalln(err)
+    sec := secret.Store {
+        StorePath: mc.Opts.StoragePath,
     }
 
-    response, errRead := ioutil.ReadAll(resp.Body)
-    if errRead != nil {
-       log.Fatalln(errRead)
+    sec.JBolt = sec.NewStore()
+
+    message := secret.Message {
+        Key: "token",
+        Bucket: "secret",
+        Data: token,
     }
 
+    sec.Save(&message)
 
     fmt.Printf("Please add this token to .env file. Property %s \n", ENV_TOKEN_KEY)
     fmt.Printf("Token: %s \n", token)
 
-    fmt.Printf("%s\n", response)
+  //  fmt.Printf("%s\n", response)
 }
 
 func GenerateSecureToken(length int) string {
