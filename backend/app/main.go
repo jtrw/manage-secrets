@@ -1,8 +1,6 @@
 package main
 import (
   "fmt"
-  "crypto/rand"
-  "encoding/hex"
   "log"
   "os"
   //"os/signal"
@@ -25,7 +23,6 @@ import (
 
 const ENV_HOST_KEY  = "JTRW_MANAGER_SECRETS_HOST"
 const ENV_PORT_KEY  = "JTRW_MANAGER_SECRETS_PORT"
-const ENV_TOKEN_KEY = "APP_JTRW_SECRET_TOKEN"
 
 type Options struct {
    Type string `short:"t" long:"type" description:"Type content save content"`
@@ -62,8 +59,6 @@ func main() {
 
 func (mc MainCommand) Start() {
     switch mc.CommandName {
-        case "install":
-            mc.makeInstallCommand()
         case "run":
             mc.makeRunCommand()
         case "kv":
@@ -71,38 +66,6 @@ func (mc MainCommand) Start() {
         default:
             log.Fatal("Command name not found")
     }
-}
-
-func (mc MainCommand) makeInstallCommand() {
-    // XXX: add to package token
-    token := GenerateSecureToken(20)
-
-    sec := secret.Store {
-        StorePath: mc.Opts.StoragePath,
-    }
-
-    sec.JBolt = sec.NewStore()
-
-    message := secret.Message {
-        Key: "token",
-        Bucket: "secret",
-        Data: token,
-    }
-
-    sec.Save(&message)
-
-    fmt.Printf("Please add this token to .env file. Property %s \n", ENV_TOKEN_KEY)
-    fmt.Printf("Token: %s \n", token)
-
-  //  fmt.Printf("%s\n", response)
-}
-
-func GenerateSecureToken(length int) string {
-    b := make([]byte, length)
-    if _, err := rand.Read(b); err != nil {
-        return ""
-    }
-    return hex.EncodeToString(b)
 }
 
 func (mc MainCommand) makeRunCommand() {
