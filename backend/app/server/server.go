@@ -55,6 +55,7 @@ func (s Server) routes() chi.Router {
     s.saveToken(token)
 
     router.Use(middleware.Logger)
+    router.Use(s.AuthMiddleware)
 	router.Use(middleware.RequestID, middleware.RealIP, um.Recoverer(lgr.Default()))
 	router.Use(middleware.Throttle(1000), middleware.Timeout(60*time.Second))
 	router.Use(um.AppInfo("secrets", "jtrw", s.Version), um.Ping, um.SizeLimit(64*1024))
@@ -73,6 +74,18 @@ func (s Server) routes() chi.Router {
     lgr.Printf("[INFO] Port: %s", s.Port)
 
 	return router
+}
+
+func (s Server) AuthMiddleware(next http.Handler) http.Handler {
+    return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+       token := s.getToken()
+       accessToken := r.Header.Get("Access-Token")
+       if token != accessToken {
+            http.Error(rw, http.StatusText(403), 403)
+            return
+       }
+       next.ServeHTTP(rw, r)
+	})
 }
 
 func GenerateSecureToken(length int) string {
@@ -133,7 +146,7 @@ func (s Server) saveValuesByKey(w http.ResponseWriter, r *http.Request) {
 
     s.DataStore.Save(&message)
     //s.DataStore.Set(bucket, keyStore, value)
-
+    render.Status(r, http.StatusCreated)
     render.JSON(w, r, secret.JSON{"status": "ok"})
     return
 }
@@ -146,7 +159,7 @@ func (s Server) getValuesByKey(w http.ResponseWriter, r *http.Request) {
 
     newMessage, _ := s.DataStore.Load(bucket, keyStore)
 
-    render.Status(r, http.StatusCreated)
+    render.Status(r, http.StatusOK)
     if len(onlyData) > 0 {
         if isContentTypeJson(r) {
             render.JSON(w, r, newMessage.DataJson)
