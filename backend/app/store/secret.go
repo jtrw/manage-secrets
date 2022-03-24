@@ -9,6 +9,7 @@ import (
 )
 
 //var BoltDB *jbolt.Bolt
+const TOKEN_KEY = "jtrw/secret"
 
 var bucketDefault = []byte("secrets")
 
