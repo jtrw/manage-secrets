@@ -3,14 +3,14 @@ package server
 import (
  "fmt"
  "io"
- //"log"
+ //"lgr"
  "time"
  "net/http"
  "strings"
  "crypto/rand"
  "encoding/hex"
-
- log "github.com/go-pkgz/lgr"
+ "log"
+ lgr "github.com/go-pkgz/lgr"
  um "github.com/go-pkgz/rest"
  "github.com/pkg/errors"
 
@@ -39,10 +39,6 @@ type Server struct {
 //type JSON map[string]interface{}
 
 func (s Server) Run() error {
-    log.Printf("[INFO] Activate rest server")
-    log.Printf("[INFO] Host: %s", s.Host)
-    log.Printf("[INFO] Port: %s", s.Port)
-
 	if err := http.ListenAndServe(s.Host+":"+s.Port, s.routes()); err != http.ErrServerClosed {
 		return errors.Wrap(err, "server failed")
 	}
@@ -59,7 +55,7 @@ func (s Server) routes() chi.Router {
     s.saveToken(token)
 
     router.Use(middleware.Logger)
-	router.Use(middleware.RequestID, middleware.RealIP, um.Recoverer(log.Default()))
+	router.Use(middleware.RequestID, middleware.RealIP, um.Recoverer(lgr.Default()))
 	router.Use(middleware.Throttle(1000), middleware.Timeout(60*time.Second))
 	router.Use(um.AppInfo("secrets", "jtrw", s.Version), um.Ping, um.SizeLimit(64*1024))
 	router.Use(tollbooth_chi.LimitHandler(tollbooth.NewLimiter(10, nil)))
@@ -68,15 +64,14 @@ func (s Server) routes() chi.Router {
 	    r.Get("/kv/*", s.getValuesByKey)
 	    r.Post("/kv/*", s.saveValuesByKey)
 	   // r.Post("/token/", s.saveToken)
-		//r.Use(Logger(log.Default()))
+		//r.Use(Logger(lgr.Default()))
 		//r.Get("/message/{key}/{pin}", s.getMessageCtrl)
 	})
-//
-// 	router.Get("/robots.txt", func(w http.ResponseWriter, r *http.Request) {
-// 		render.PlainText(w, r, "User-agent: *\nDisallow: /api/\nDisallow: /show/\n")
-// 	})
-//
-// 	s.fileServer(router, "/", http.Dir(s.WebRoot))
+
+    lgr.Printf("[INFO] Activate rest server")
+    lgr.Printf("[INFO] Host: %s", s.Host)
+    lgr.Printf("[INFO] Port: %s", s.Port)
+
 	return router
 }
 
@@ -91,20 +86,28 @@ func GenerateSecureToken(length int) string {
 func (s Server) saveToken(token string) {
     message := secret.Message {
         Key: "token",
-        Bucket: "secret",
+        Bucket: secret.TOKEN_KEY,
         Data: token,
     }
 
     s.DataStore.Save(&message)
 }
 
+func (s Server) getToken() string {
+     message, err := s.DataStore.Load(secret.TOKEN_KEY, "token")
+     if err != nil {
+        log.Fatal("Token Not Found!")
+     }
+     return message.Data
+}
+
 func (s Server) saveValuesByKey(w http.ResponseWriter, r *http.Request) {
     b, err := io.ReadAll(r.Body)
     if err != nil {
-        log.Printf("[ERROR] %s", err)
+        lgr.Printf("[ERROR] %s", err)
     }
     value := string(b)
-    log.Printf("[INFO] %s", value)
+    lgr.Printf("[INFO] %s", value)
 
     uri := chi.URLParam(r, "*")
     keyStore, bucket := getKeyAndBucketByUrl(uri)
@@ -114,7 +117,7 @@ func (s Server) saveValuesByKey(w http.ResponseWriter, r *http.Request) {
     if isContentTypeJson(r) {
         errJsn := json.Unmarshal([]byte(value), dataJson)
         if errJsn != nil {
-            log.Printf("ERROR Invalid json in Data");
+            lgr.Printf("ERROR Invalid json in Data");
             return
         }
         dataType = "json"
@@ -136,7 +139,7 @@ func (s Server) saveValuesByKey(w http.ResponseWriter, r *http.Request) {
 }
 func (s Server) getValuesByKey(w http.ResponseWriter, r *http.Request) {
     uri := chi.URLParam(r, "*")
-    log.Printf("ContentType: %s", r.Header.Get("Content-Type"))
+    lgr.Printf("ContentType: %s", r.Header.Get("Content-Type"))
     onlyData := r.URL.Query().Get("onlyData")
 
     keyStore,bucket := getKeyAndBucketByUrl(uri)
@@ -172,17 +175,4 @@ func getKeyAndBucketByUrl(uri string) (string, string) {
 
 func isContentTypeJson(r *http.Request) bool {
     return r.Header.Get("Content-Type") == strings.ToLower("application/json")
-}
-
-func helloHandler(w http.ResponseWriter, r *http.Request) {
-    if r.URL.Path != "/hello" {
-        http.Error(w, "404 not found.", http.StatusNotFound)
-        return
-    }
-
-    if r.Method != "GET" {
-        http.Error(w, "Method is not supported.", http.StatusNotFound)
-        return
-    }
-    fmt.Fprintf(w, "Hello!")
 }
