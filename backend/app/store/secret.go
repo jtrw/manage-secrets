@@ -5,7 +5,7 @@ import (
   "time"
   "encoding/json"
   jbolt "manager-secrets/backend/app/store/jbolt"
-   log "github.com/go-pkgz/lgr"
+  // log "github.com/go-pkgz/lgr"
 )
 
 //var BoltDB *jbolt.Bolt
@@ -56,7 +56,7 @@ func (s Store) Save(msg *Message) {
 
 func (s Store) Load(bucket, key string) (result *Message, err error) {
     val := jbolt.Get(s.JBolt.DB, bucket, key)
-    log.Printf("%s",val);
+
     result = &Message{}
 
     errMarshal := json.Unmarshal([]byte(val), result)

@@ -48,11 +48,7 @@ func (s Server) Run() error {
 func (s Server) routes() chi.Router {
 	router := chi.NewRouter()
 
-    token, err := s.getToken()
-    if err != nil {
-         token = GenerateSecureToken(20)
-         s.saveToken(token)
-    }
+    token := getValidToken(s)
 
     fmt.Printf("Please add this token to .env file. Property %s \n", ENV_TOKEN_KEY)
     fmt.Printf("Token: %s \n", token)
@@ -61,7 +57,6 @@ func (s Server) routes() chi.Router {
     router.Use(s.AuthMiddleware)
 	router.Use(middleware.RequestID, middleware.RealIP, um.Recoverer(lgr.Default()))
 	router.Use(middleware.Throttle(1000), middleware.Timeout(60*time.Second))
-	router.Use(um.AppInfo("secrets", "jtrw", s.Version), um.Ping, um.SizeLimit(64*1024))
 	router.Use(tollbooth_chi.LimitHandler(tollbooth.NewLimiter(10, nil)))
 
 	router.Route("/api/v1", func(r chi.Router) {
@@ -77,6 +72,15 @@ func (s Server) routes() chi.Router {
     lgr.Printf("[INFO] Port: %s", s.Port)
 
 	return router
+}
+
+func getValidToken(s Server) string {
+    token, err := s.getToken()
+    if err != nil {
+         token = GenerateSecureToken(20)
+         s.saveToken(token)
+    }
+    return token
 }
 
 func (s Server) AuthMiddleware(next http.Handler) http.Handler {
