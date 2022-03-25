@@ -9,7 +9,7 @@ import (
  "strings"
  "crypto/rand"
  "encoding/hex"
- "log"
+ //"log"
  lgr "github.com/go-pkgz/lgr"
  um "github.com/go-pkgz/rest"
  "github.com/pkg/errors"
@@ -48,11 +48,14 @@ func (s Server) Run() error {
 func (s Server) routes() chi.Router {
 	router := chi.NewRouter()
 
-    token := GenerateSecureToken(20)
+    token, err := s.getToken()
+    if err != nil {
+         token = GenerateSecureToken(20)
+         s.saveToken(token)
+    }
 
     fmt.Printf("Please add this token to .env file. Property %s \n", ENV_TOKEN_KEY)
     fmt.Printf("Token: %s \n", token)
-    s.saveToken(token)
 
     router.Use(middleware.Logger)
     router.Use(s.AuthMiddleware)
@@ -78,7 +81,11 @@ func (s Server) routes() chi.Router {
 
 func (s Server) AuthMiddleware(next http.Handler) http.Handler {
     return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-       token := s.getToken()
+       token, err := s.getToken()
+       if err != nil {
+           http.Error(rw, http.StatusText(403), 403)
+           return
+       }
        accessToken := r.Header.Get("Access-Token")
        if token != accessToken {
             http.Error(rw, http.StatusText(403), 403)
@@ -106,12 +113,10 @@ func (s Server) saveToken(token string) {
     s.DataStore.Save(&message)
 }
 
-func (s Server) getToken() string {
+func (s Server) getToken() (string, error) {
      message, err := s.DataStore.Load(secret.TOKEN_KEY, "token")
-     if err != nil {
-        log.Fatal("Token Not Found!")
-     }
-     return message.Data
+
+     return message.Data, err
 }
 
 func (s Server) saveValuesByKey(w http.ResponseWriter, r *http.Request) {
