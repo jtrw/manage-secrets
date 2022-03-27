@@ -2,8 +2,18 @@
 
 ## Use
 `go run backend/app/main.go run` - Run web server
+
 `go run backend/app/main.go kv set fkey value` - Set Value
+
 `go run backend/app/main.go kv get fkey` - Get Value
+
+## Make
+`make run` 
+
+`make get key`
+
+`make set key`
+
 
 ## Api
 
