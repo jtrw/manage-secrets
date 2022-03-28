@@ -26,6 +26,8 @@ import (
 )
 const ENV_TOKEN_KEY = "APP_JTRW_SECRET_TOKEN"
 
+const HEADER_ACCESS_TOKEN = "Access-Token";
+
 type Server struct {
     DataStore      secret.Store
     Host           string
@@ -90,7 +92,7 @@ func (s Server) AuthMiddleware(next http.Handler) http.Handler {
            http.Error(rw, http.StatusText(403), 403)
            return
        }
-       accessToken := r.Header.Get("Access-Token")
+       accessToken := r.Header.Get(HEADER_ACCESS_TOKEN)
        if token != accessToken {
             http.Error(rw, http.StatusText(403), 403)
             return
