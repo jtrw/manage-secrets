@@ -26,6 +26,8 @@ import (
 )
 const ENV_TOKEN_KEY = "APP_JTRW_SECRET_TOKEN"
 
+const HEADER_ACCESS_TOKEN = "Access-Token";
+
 type Server struct {
     DataStore      secret.Store
     Host           string
@@ -48,11 +50,7 @@ func (s Server) Run() error {
 func (s Server) routes() chi.Router {
 	router := chi.NewRouter()
 
-    token, err := s.getToken()
-    if err != nil {
-         token = GenerateSecureToken(20)
-         s.saveToken(token)
-    }
+    token := getValidToken(s)
 
     fmt.Printf("Please add this token to .env file. Property %s \n", ENV_TOKEN_KEY)
     fmt.Printf("Token: %s \n", token)
@@ -61,7 +59,6 @@ func (s Server) routes() chi.Router {
     router.Use(s.AuthMiddleware)
 	router.Use(middleware.RequestID, middleware.RealIP, um.Recoverer(lgr.Default()))
 	router.Use(middleware.Throttle(1000), middleware.Timeout(60*time.Second))
-	router.Use(um.AppInfo("secrets", "jtrw", s.Version), um.Ping, um.SizeLimit(64*1024))
 	router.Use(tollbooth_chi.LimitHandler(tollbooth.NewLimiter(10, nil)))
 
 	router.Route("/api/v1", func(r chi.Router) {
@@ -79,6 +76,15 @@ func (s Server) routes() chi.Router {
 	return router
 }
 
+func getValidToken(s Server) string {
+    token, err := s.getToken()
+    if err != nil {
+         token = GenerateSecureToken(20)
+         s.saveToken(token)
+    }
+    return token
+}
+
 func (s Server) AuthMiddleware(next http.Handler) http.Handler {
     return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
        token, err := s.getToken()
@@ -86,7 +92,7 @@ func (s Server) AuthMiddleware(next http.Handler) http.Handler {
            http.Error(rw, http.StatusText(403), 403)
            return
        }
-       accessToken := r.Header.Get("Access-Token")
+       accessToken := r.Header.Get(HEADER_ACCESS_TOKEN)
        if token != accessToken {
             http.Error(rw, http.StatusText(403), 403)
             return
