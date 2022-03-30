@@ -21,7 +21,6 @@ import (
  "github.com/go-chi/render"
 
  secret "manager-secrets/backend/app/store"
-
  "encoding/json"
 )
 const ENV_TOKEN_KEY = "APP_JTRW_SECRET_TOKEN"
@@ -37,8 +36,6 @@ type Server struct {
 	WebRoot        string
 	Version        string
 }
-
-//type JSON map[string]interface{}
 
 func (s Server) Run() error {
 	if err := http.ListenAndServe(s.Host+":"+s.Port, s.routes()); err != http.ErrServerClosed {
@@ -64,9 +61,6 @@ func (s Server) routes() chi.Router {
 	router.Route("/api/v1", func(r chi.Router) {
 	    r.Get("/kv/*", s.getValuesByKey)
 	    r.Post("/kv/*", s.saveValuesByKey)
-	   // r.Post("/token/", s.saveToken)
-		//r.Use(Logger(lgr.Default()))
-		//r.Get("/message/{key}/{pin}", s.getMessageCtrl)
 	})
 
     lgr.Printf("[INFO] Activate rest server")
@@ -156,14 +150,16 @@ func (s Server) saveValuesByKey(w http.ResponseWriter, r *http.Request) {
     }
 
     s.DataStore.Save(&message)
-    //s.DataStore.Set(bucket, keyStore, value)
+
     render.Status(r, http.StatusCreated)
     render.JSON(w, r, secret.JSON{"status": "ok"})
     return
 }
 func (s Server) getValuesByKey(w http.ResponseWriter, r *http.Request) {
     uri := chi.URLParam(r, "*")
+
     lgr.Printf("ContentType: %s", r.Header.Get("Content-Type"))
+
     onlyData := r.URL.Query().Get("onlyData")
 
     keyStore,bucket := getKeyAndBucketByUrl(uri)
@@ -177,13 +173,10 @@ func (s Server) getValuesByKey(w http.ResponseWriter, r *http.Request) {
             return
         }
         render.JSON(w, r, newMessage.Data)
-    } else {
-        render.JSON(w, r, newMessage)
+        return
     }
 
-
-    //render.JSON(w, r, JSON{"key": newMessage.Key, "Data": newMessage.Data})
-    //render.JSON(w, r, JSON{"Data": json.newMessage.Data})
+    render.JSON(w, r, newMessage)
 }
 
 

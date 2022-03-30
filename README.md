@@ -6,12 +6,25 @@
 `go run backend/app/main.go kv get fkey` - Get Value
 
 ## Api
+### Auth
+Add to header key `Access-Token` for authorization
+When you execute `run` command in output you see access token
+
+### Rest Example
 
 `GET: http://127.0.0.1:8080/api/v1/kv/one/two?onlyData=1`
 
 Params `onlyData` means it will be output only clear data without system information
 
+`POST: http://127.0.0.1:8080/api/v1/kv/one/two`
 
+Body type json:
+```json
+{
+    "firstName": "John",
+    "lastName": "Smith"
+}
+```
 
 ## Use
 1. boltdb
