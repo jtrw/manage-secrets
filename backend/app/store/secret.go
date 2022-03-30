@@ -8,15 +8,13 @@ import (
   // log "github.com/go-pkgz/lgr"
 )
 
-//var BoltDB *jbolt.Bolt
 const TOKEN_KEY = "jtrw/secret"
-
-var bucketDefault = []byte("secrets")
 
 type Store struct {
 	StorePath string
 	JBolt jbolt.Bolt
 }
+
 type JSON map[string]interface{}
 
 type Message struct {
