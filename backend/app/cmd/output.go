@@ -7,7 +7,6 @@ import (
 )
 
 func Print(body []byte) {
-
      result := &secret.Message{}
 
      err := json.Unmarshal(body, result)
