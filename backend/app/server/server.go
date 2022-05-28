@@ -11,7 +11,6 @@ import (
  "encoding/hex"
  //"log"
  lgr "github.com/go-pkgz/lgr"
- um "github.com/go-pkgz/rest"
  "github.com/pkg/errors"
 
  "github.com/didip/tollbooth/v6"
@@ -54,7 +53,6 @@ func (s Server) routes() chi.Router {
 
     router.Use(middleware.Logger)
     router.Use(s.AuthMiddleware)
-	router.Use(middleware.RequestID, middleware.RealIP, um.Recoverer(lgr.Default()))
 	router.Use(middleware.Throttle(1000), middleware.Timeout(60*time.Second))
 	router.Use(tollbooth_chi.LimitHandler(tollbooth.NewLimiter(10, nil)))
 

@@ -1,11 +1,9 @@
 package store
 
 import (
-  //"fmt"
   "time"
   "encoding/json"
   jbolt "manager-secrets/backend/app/store/jbolt"
-  // log "github.com/go-pkgz/lgr"
 )
 
 const TOKEN_KEY = "jtrw/secret"
