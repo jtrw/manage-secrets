@@ -3,11 +3,6 @@ import (
   "fmt"
   "log"
   "os"
-  //"os/signal"
- //  "reflect"
-  //
-  //"time"
-  //"flag"
   secret "manager-secrets/backend/app/store"
   server "manager-secrets/backend/app/server"
   output "manager-secrets/backend/app/cmd"
@@ -16,9 +11,6 @@ import (
   "io/ioutil"
   "bytes"
   "github.com/joho/godotenv"
-  //"context"
-  //"time"
-  //"time"
 )
 
 const ENV_HOST_KEY  = "JTRW_MANAGER_SECRETS_HOST"
@@ -37,7 +29,7 @@ type KvCommand struct {
 
 type MainCommand struct {
     CommandName string
-	Opts       Options
+    Opts Options
 }
 
 func main() {
